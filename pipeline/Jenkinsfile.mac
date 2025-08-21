@@ -1,0 +1,124 @@
+@Library('shared-lib') _
+
+// Abort older builds
+def buildNumber = BUILD_NUMBER as int
+if (buildNumber > 1) milestone(buildNumber - 1)
+milestone(buildNumber)
+
+pipeline {
+    agent { label 'mac-spsdk' }
+    
+    options {
+        timeout(time: 1, unit: 'HOURS')   // timeout on whole pipeline job
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                // checkout Rblhost repository
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: scm.branches,
+                        doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                        extensions: scm.extensions + [[$class: 'CloneOption', noTags: false, reference: '', shallow: false]],
+                        submoduleCfg: [],
+                        userRemoteConfigs: scm.userRemoteConfigs
+                    ])
+            }
+        }
+        
+        stage('Setup Rust') {
+            steps {
+                script {
+                    // Update and display Rust version
+                    sh '''
+                        rustup update
+                        rustc --version
+                        cargo --version
+                    '''
+                }
+            }
+        }
+        
+        stage('Check formatting') {
+            steps {
+                script {
+                    sh '''
+                        rustup component add rustfmt
+                        cargo fmt --check
+                    '''
+                }
+            }
+        }
+        
+        stage('Static analysis - clippy') {
+            steps {
+                sh '''
+                    rustup component add clippy
+                    cargo clippy --all-targets --all-features -- -D warnings
+                '''
+            }
+        }
+        
+        
+        stage('Build Rust') {
+            steps {
+                sh '''
+                    cargo build --release
+                '''
+            }
+        }
+        
+        stage('Test Rust') {
+            steps {
+                // Run tests that don't require hardware
+                sh '''
+                    cargo test -- --skip test_board_ping
+                '''
+            }
+        }
+        
+        stage('Build Python Package') {
+            steps {
+                withVenv(
+                    'uv pip install setuptools setuptools-rust build',
+                    'uv pip install -e .',
+                    'python -m build --wheel --outdir dist/'
+                )
+            }
+        }
+        
+        stage('Package') {
+            steps {
+                // Archive the binary
+                sh 'mkdir -p artifacts/bin'
+                sh 'cp target/release/rblhost artifacts/bin/'
+                
+                // Archive Python wheel
+                sh 'mkdir -p artifacts/python'
+                sh 'cp dist/*.whl artifacts/python/'
+                
+                // Create archive
+                sh 'tar -czf blhost-${BUILD_NUMBER}.tar.gz artifacts'
+                archiveArtifacts artifacts: "blhost-${BUILD_NUMBER}.tar.gz", fingerprint: true
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Clean up workspace
+            cleanWs(cleanWhenNotBuilt: false,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    patterns: [[pattern: '.gitignore', type: 'INCLUDE'],
+                              [pattern: '.git/**', type: 'EXCLUDE']])
+        }
+        success {
+            echo 'Build completed successfully!'
+        }
+        failure {
+            echo 'Build failed!'
+        }
+    }
+}

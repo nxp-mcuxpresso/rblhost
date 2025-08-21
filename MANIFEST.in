@@ -1,0 +1,10 @@
+include build_backend.py
+include pyproject.toml
+include README.md
+include LICENSE
+include Cargo.toml
+include Cargo.lock
+recursive-include src *
+recursive-include pymboot *.py *.pyi py.typed
+global-exclude __pycache__
+global-exclude *.py[co]

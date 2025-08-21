@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=68.0", "setuptools-rust>=1.7.0"]
+build-backend = "build_backend"
+backend-path = ["."]
+
+[project]
+name = "pymboot-rs"
+version = "0.1.0"
+requires-python = ">=3.9"
+description = "Python bindings for McuBoot implementation in Rust, providing high-performance communication with NXP MCU bootloader."
+readme = "README.md"
+authors = [{ name = "NXP", email = "spsdk@nxp.com" }]
+license = "BSD-3-Clause"
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pymboot*"]
+
+[tool.setuptools.package-data]
+pymboot = ["*.pyi", "py.typed"]
+
+[[tool.setuptools-rust.bins]]
+target = "rblhost" 
+
+[[tool.setuptools-rust.ext-modules]]
+target = "pymboot"
+args = ["--features", "python"]
+binding = "PyO3"
+
+[tool.copyright]
+excluded_files = []
+
+[tool.nxp_codecheck]
+git_parent_branch = "origin/master"
+output_directory = "reports"
+default_check_paths = ["src"]
+checkers = [
+    "copyright",
+]
+
+[tool.release-tools]
+enabled = ["blackduck_sca", "scr", "clr"]
+
+
+[tool.release-tools.blackduck_sca]
+project_name = "rblhost"
+include_detector_types = ["cargo"]
+sbom_location = "SBOM-rblhost.spdx.json"
+
+[tool.release-tools.clr]
+excluded_checks = ['dependencies_license']

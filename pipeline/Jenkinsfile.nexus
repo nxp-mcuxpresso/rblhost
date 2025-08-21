@@ -1,0 +1,75 @@
+@Library('shared-lib') _
+
+pipeline {
+    agent none
+    
+    parameters {
+        string(name: 'PYTHON_VERSIONS', defaultValue: '3.9,3.10,3.11,3.12,3.13', description: 'Comma-separated list of Python versions')
+    }
+    
+    stages {
+        stage('Build Wheels') {
+            parallel {
+                stage('Linux') {
+                    agent { label 'linux-spsdk' }
+                    steps {
+                        script {
+                            def pythonVersionsList = params.PYTHON_VERSIONS.split(',').collect { it.trim() }
+                            checkoutRepo()
+                            doBuildWheels(
+                                pythonVersions: pythonVersionsList,
+                                artifactDir: 'wheels-linux'
+                            )
+                        }
+                    }
+                }
+                
+                stage('macOS') {
+                    agent { label 'mac-spsdk' }
+                    steps {
+                        script {
+                            def pythonVersionsList = params.PYTHON_VERSIONS.split(',').collect { it.trim() }
+                            checkoutRepo()
+                            doBuildWheels(
+                                pythonVersions: pythonVersionsList,
+                                artifactDir: 'wheels-macos'
+                            )
+                        }
+                    }
+                }
+                
+                stage('Windows') {
+                    agent { label 'windows-spsdk' }
+                    steps {
+                        script {
+                            def pythonVersionsList = params.PYTHON_VERSIONS.split(',').collect { it.trim() }
+                            checkoutRepo()
+                            doBuildWheels(
+                                pythonVersions: pythonVersionsList,
+                                artifactDir: 'wheels-windows'
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Publish') {
+            agent { label 'linux-spsdk' }
+            steps {
+                // Copy wheels from all platforms to a single directory
+                sh 'mkdir -p all-wheels'
+                copyArtifacts(
+                    projectName: env.JOB_NAME,
+                    selector: specific(env.BUILD_NUMBER),
+                    filter: 'wheels-*/**.whl',
+                    target: 'all-wheels'
+                )
+                withVenv(
+                    "uv pip install build twine",
+                    "twine upload --verbose --repository nexus all-wheels/**/*.whl"
+                )
+            }
+        }
+    }
+}

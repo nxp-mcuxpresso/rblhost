@@ -1,0 +1,144 @@
+@Library('shared-lib') _
+
+// Abort older builds
+def buildNumber = BUILD_NUMBER as int
+if (buildNumber > 1) milestone(buildNumber - 1)
+milestone(buildNumber)
+
+pipeline {
+    agent { label 'windows-spsdk' }
+    
+    options {
+        timeout(time: 1, unit: 'HOURS')   // timeout on whole pipeline job
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                // checkout Rblhost repository
+                checkout([
+                    $class: 'GitSCM',
+                    branches: scm.branches,
+                    doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                    extensions: scm.extensions + [[$class: 'CloneOption', noTags: false, reference: '', shallow: false]],
+                    submoduleCfg: [],
+                    userRemoteConfigs: scm.userRemoteConfigs
+                ])
+            }
+        }
+        
+        stage('Setup Rust') {
+            steps {
+                script {
+                    // Check if Rust is installed
+                    def rustInstalled = bat(script: 'where rustc || echo NOT_FOUND', returnStdout: true).trim()
+                    
+                    if (rustInstalled.contains('NOT_FOUND')) {
+                        echo "Rust not found, installing via rustup..."
+                        
+                        // Install rustup and Rust
+                        bat '''
+                            rustup toolchain add stable --profile minimal
+                            rustup component add clippy
+                        '''
+                    } else {
+                        echo "Rust is already installed"
+                    }
+                    
+                    // Display Rust version
+                    bat '''
+                        set PATH=%CARGO_HOME%\\bin;%PATH%
+                        rustup show
+                        rustc --version
+                        cargo --version
+                    '''
+                }
+            }
+        }
+
+        stage('Check formatting') {
+            steps {
+                script {
+                    bat '''
+                        set PATH=%CARGO_HOME%\\bin;%PATH%
+                        rustup component add rustfmt
+                        cargo fmt --check
+                    '''
+                }
+            }
+        }
+
+        stage('Static analysis - clippy') {
+            steps {
+                bat '''
+                    set PATH=%CARGO_HOME%\\bin;%PATH%
+                    cargo clippy --all-targets --features python,c_api -- -D warnings
+                '''
+            }
+        }
+        
+        stage('Build Rust') {
+            steps {
+                bat '''
+                    set PATH=%CARGO_HOME%\\bin;%PATH%
+                    cargo build --release
+                '''
+            }
+        }
+        
+        stage('Test Rust') {
+            steps {
+                // Run tests that don't require hardware
+                bat '''
+                    set PATH=%CARGO_HOME%\\bin;%PATH%
+                    cargo test
+                '''
+            }
+        }
+        
+        stage('Build Python Package') {
+            steps {
+                withVenv(
+                    'python -m pip install --upgrade pip',
+                    'pip install setuptools setuptools-rust wheel',
+                    'set PATH=%CARGO_HOME%\\bin;%PATH%',
+                    'pip install -e .',
+                    'pip wheel . -w dist/'
+                )
+            }
+        }
+        
+        stage('Package') {
+            steps {
+                // Archive the binary
+                bat 'if not exist artifacts\\bin mkdir artifacts\\bin'
+                bat 'copy target\\release\\rblhost.exe artifacts\\bin\\'
+                
+                // Archive Python wheel
+                bat 'if not exist artifacts\\python mkdir artifacts\\python'
+                bat 'copy dist\\*.whl artifacts\\python\\'
+                powershell '''
+                    Compress-Archive -Path artifacts -DestinationPath "blhost-${env:BUILD_NUMBER}.zip" -Force
+                '''
+                archiveArtifacts artifacts: "blhost-${BUILD_NUMBER}.zip", fingerprint: true
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Clean up workspace
+            cleanWs(cleanWhenNotBuilt: false,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    patterns: [[pattern: '.gitignore', type: 'INCLUDE'],
+                              [pattern: '.git/**', type: 'EXCLUDE']])
+        }
+        success {
+            echo 'Build completed successfully!'
+        }
+        failure {
+            echo 'Build failed!'
+        }
+    }
+}

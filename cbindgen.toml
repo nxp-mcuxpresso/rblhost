@@ -1,0 +1,25 @@
+language = "C"
+pragma_once = true
+autogen_warning = "/* This file is auto-generated, do not edit directly */"
+tab_width = 4
+documentation = true
+style = "both"
+cpp_compat = true
+usize_is_size_t = true
+
+[export]
+prefix = "MBOOT_"
+include = []
+exclude = [
+    "DEFAULT_SLAVE",
+    "START_ADDRESS", "SIZE_IN_KBYTES", "PAGE_SIZE", "SECTOR_SIZE", "BLOCK_SIZE",
+    "CMD_OUT", "DATA_OUT", "CMD_IN", "DATA_IN",
+]
+
+[parse]
+parse_deps = true
+include = []
+
+[enum]
+rename_variants = "ScreamingSnakeCase"
+prefix_with_name = true

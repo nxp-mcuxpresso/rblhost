@@ -1,0 +1,14 @@
+.vscode/
+/target
+venv/
+/dist
+/include
+/.venv
+
+*.exe
+*.sb
+*.zip
+
+# python things
+pymboot*
+__pycache__*
