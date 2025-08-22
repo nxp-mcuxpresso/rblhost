@@ -3,7 +3,7 @@ name: Deployment
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   test:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
@@ -41,7 +41,7 @@ jobs:
 
       - name: Login to crates.io
         run: cargo login ${{ secrets.CRATES_IO_TOKEN }}
-      
+
       - name: Publish to crates.io
         run: cargo publish
 
@@ -53,14 +53,14 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-    
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Make scripts executable
         if: runner.os != 'Windows'
@@ -69,16 +69,16 @@ jobs:
 
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel
-      
+
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-*
-          CIBW_SKIP: "*-musllinux_i686*"
+          CIBW_SKIP: "*-musllinux_i686* *-win32" # Skip 32-bit builds to avoid architecture mismatch
           CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux2014_x86_64
           CIBW_MANYLINUX_I686_IMAGE: quay.io/pypa/manylinux2014_i686
           CIBW_BEFORE_BUILD_LINUX: |
-            yum install -y systemd-devel pkgconfig
+            yum install -y systemd-devel pkgconfig libudev-devel
             bash .github/scripts/install_rust_unix.sh
           CIBW_BEFORE_BUILD_MACOS: |
             rustup target add x86_64-apple-darwin
@@ -89,6 +89,8 @@ jobs:
           CIBW_ENVIRONMENT_LINUX: 'PATH="$HOME/.cargo/bin:$PATH"'
           CIBW_ENVIRONMENT_MACOS: 'PATH="$HOME/.cargo/bin:$PATH"'
           CIBW_ENVIRONMENT_WINDOWS: 'PATH="$UserProfile\\.cargo\\bin;$PATH"'
+          CIBW_ARCHS_LINUX: "x86_64" # Explicitly specify 64-bit only
+          CIBW_ARCHS_WINDOWS: "AMD64" # Explicitly specify 64-bit only
           CIBW_ARCHS_MACOS: "x86_64 arm64 universal2"
           MACOSX_DEPLOYMENT_TARGET: "10.12" # the minimum version of macOS on which the target binaries are to be deployed
 
