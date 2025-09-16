@@ -105,12 +105,6 @@ jobs:
     name: Publish to PyPI
     needs: build-wheels
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    environment:
-      name: pypi
-      url: https://pypi.org/project/pymboot-rs/
     steps:
       - name: Download all wheels
         uses: actions/download-artifact@v4
@@ -120,7 +114,8 @@ jobs:
           merge-multiple: true
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.12.4 # The authentication is provided by OpenID Connect: https://docs.pypi.org/trusted-publishers/adding-a-publisher/
+        uses: pypa/gh-action-pypi-publish@v1.12.4
         with:
           packages-dir: dist
           skip-existing: true
+          password: ${{ secrets.PYPI_API_TOKEN }}

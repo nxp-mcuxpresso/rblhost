@@ -3,14 +3,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 """Custom build backend that generates stub files before building."""
 
-from setuptools.build_meta import *
-from setuptools.build_meta import build_wheel as _build_wheel
-from setuptools.build_meta import build_sdist as _build_sdist
-from setuptools.build_meta import build_editable as _build_editable
-import subprocess
-import shutil
 import os
-import sys
+import shutil
+import subprocess
+
+from setuptools.build_meta import build_editable as _build_editable
+from setuptools.build_meta import build_sdist as _build_sdist
+from setuptools.build_meta import build_wheel as _build_wheel
 
 
 def _generate_stubs():
@@ -33,17 +32,17 @@ def _generate_stubs():
         print(f"Stub generation output: {result.stdout}")
 
         # Ensure the pymboot directory exists
-        os.makedirs("pymboot", exist_ok=True)
+        os.makedirs("pymboot_rs", exist_ok=True)
 
         # Copy the generated stub file to the package directory
-        if os.path.exists("pymboot.pyi"):
-            shutil.copy("pymboot.pyi", "pymboot/__init__.pyi")
-            print("Copied pymboot.pyi to pymboot/__init__.pyi")
+        if os.path.exists("pymboot_rs.pyi"):
+            shutil.copy("pymboot_rs.pyi", "pymboot_rs/__init__.pyi")
+            print("Copied pymboot_rs.pyi to pymboot_rs/__init__.pyi")
         else:
             print("Warning: pymboot.pyi was not generated!")
 
         # Create py.typed marker for PEP 561 compliance
-        with open("pymboot/py.typed", "w") as f:
+        with open("pymboot_rs/py.typed", "w") as f:
             pass
         print("Created py.typed marker")
 

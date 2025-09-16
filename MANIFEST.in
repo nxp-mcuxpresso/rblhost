@@ -5,6 +5,6 @@ include LICENSE
 include Cargo.toml
 include Cargo.lock
 recursive-include src *
-recursive-include pymboot *.py *.pyi py.typed
+recursive-include pymboot_rs *.py *.pyi py.typed
 global-exclude __pycache__
 global-exclude *.py[co]

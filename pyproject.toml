@@ -5,7 +5,7 @@ backend-path = ["."]
 
 [project]
 name = "pymboot-rs"
-version = "0.1.0"
+version = "0.2.0"
 requires-python = ">=3.9"
 description = "Python bindings for McuBoot implementation in Rust, providing high-performance communication with NXP MCU bootloader."
 readme = "README.md"
@@ -54,6 +54,7 @@ enabled = ["blackduck_sca", "scr", "clr"]
 project_name = "rblhost"
 include_detector_types = ["cargo"]
 sbom_location = "SBOM-rblhost.spdx.json"
+excluded_directories = ['target']
 
 [tool.release-tools.clr]
 excluded_checks = ['dependencies_license']
