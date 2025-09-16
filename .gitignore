@@ -12,3 +12,4 @@ venv/
 # python things
 pymboot*
 __pycache__*
+venv*

@@ -1,3 +1,6 @@
+// Copyright 2025 NXP
+//
+// SPDX-License-Identifier: BSD-3-Clause
 /// This file works as an example, that the bindings are C++ compatible but don't directly
 /// support features specific to C++.
 /// The program does the same thing as write_read_memory.c

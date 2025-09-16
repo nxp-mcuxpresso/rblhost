@@ -15,6 +15,19 @@ This is a concept implementation of the blhost tool in Rust programming language
 - Python bindings for integration with other tools
 - C/C++ bindings
 
+## Documentation
+
+- **API Documentation**: [docs.rs/rblhost](https://docs.rs/rblhost/latest/mboot/)
+- **Examples**: See the [examples folder](examples/) for usage examples
+
+## Changelog
+
+### Version 0.2.0
+
+- Added support for `flash-image` command with S-record format parsing
+- Implemented S-record file format support in image parser
+- Fixed stub files for Python bindings
+  
 ## Performance Benchmark
 
 The Rust implementation offers performance improvements compared to both the Python SPSDK implementation and the original C/C++ blhost tool.
@@ -317,7 +330,7 @@ This table compares the commands available in rblhost (Rust implementation) with
 | efuse-read-once          | ❌      | ✅     | ❌              | ❌         |
 | flash-read-resource      | ❌      | ✅     | ❌              | ❌         |
 | configure-memory         | ✅      | ✅     | ✅              | ❌         |
-| flash-image              | ❌      | ✅     | ❌              | ❌         |
+| flash-image              | ✅      | ✅     | ❌              | ❌         |
 | reliable-update          | ❌      | ✅     | ❌              | ❌         |
 | generate-key-blob        | ❌      | ✅     | ❌              | ❌         |
 | key-provisioning         | ✅      | ✅     | ✅              | ❌         |

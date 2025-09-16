@@ -11,9 +11,12 @@ use std::{
     fs::File,
     io::{Read, Write},
 };
+mod image_parser;
 mod parsers;
+use std::path::Path;
 
 use clap::{Arg, ArgGroup, Parser, Subcommand};
+use image_parser::ImageParser;
 use log::{LevelFilter, debug, warn};
 use mboot::{
     CommunicationError, GetPropertyResponse, KeyProvisioningResponse, McuBoot, ReadMemoryResponse,
@@ -415,6 +418,23 @@ pub enum Commands {
         /// Boot file to load
         file: String,
     },
+
+    /// Write a formatted image file to flash memory with optional erasing.
+    ///
+    /// Supports S-record format files. The command parses the image file to extract
+    /// memory segments and writes them using flash-erase-region and write-memory calls.
+    FlashImage {
+        /// Path to image file (S-record format supported)
+        file: String,
+
+        /// Erase option: 'erase' to erase flash before writing, 'none' to skip erasing
+        #[arg(default_value = "none")]
+        erase: String,
+
+        /// ID of memory to write to (default: 0)
+        #[arg(value_parser=parsers::parse_number::<u32>, default_value_t = 0)]
+        memory_id: u32,
+    },
 }
 
 pub struct Blhost<T>
@@ -740,6 +760,15 @@ where
                 let status = self.boot.load_image(&buffer)?;
                 self.display_status(status);
             }
+            Commands::FlashImage {
+                ref file,
+                ref erase,
+                memory_id,
+            } => {
+                let file_path = file.clone();
+                let erase_option = erase.clone();
+                self.flash_image(&file_path, &erase_option, memory_id)?;
+            }
         }
 
         if self.args.secret {
@@ -816,5 +845,120 @@ where
                 TrustProvOperation::OemSetMasterShare { .. } => {}
             }
         }
+    }
+
+    fn flash_image(&mut self, image_file_path: &str, erase: &str, memory_id: u32) -> Result<(), CommunicationError> {
+        const ALIGNMENT: u32 = 1024;
+
+        // Validate file exists
+        if !Path::new(image_file_path).is_file() {
+            if !self.args.silent {
+                println!("Error: The image file does not exist: {image_file_path}");
+            }
+            return Err(CommunicationError::InvalidData);
+        }
+
+        // Validate erase parameter
+        if erase != "erase" && erase != "none" {
+            if !self.args.silent {
+                println!("Error: Invalid erase option '{erase}'. Use 'erase' or 'none'");
+            }
+            return Err(CommunicationError::InvalidData);
+        }
+
+        // Load and parse the image file using the ImageParser
+        let segments = ImageParser::parse_file(image_file_path)?;
+
+        if segments.is_empty() {
+            if !self.args.silent {
+                println!("Error: No data segments found in image file");
+            }
+            return Err(CommunicationError::InvalidData);
+        }
+
+        if !self.args.silent {
+            println!("Loaded image file: {} ({} segments)", image_file_path, segments.len());
+
+            // If it's an S-record file, show additional info
+            if ImageParser::is_srec_format(image_file_path)
+                && let Ok((_, info)) = ImageParser::parse_srec_with_info(image_file_path)
+            {
+                if let Some(header) = &info.header {
+                    println!("  Header: {header}");
+                }
+                println!("  Data length: {}", info.data_length);
+                println!("  Memory regions: {}", info.memory_regions);
+            }
+
+            for (i, segment) in segments.iter().enumerate() {
+                println!(
+                    "  Segment #{}: address=0x{:08X}, size={} bytes",
+                    i + 1,
+                    segment.address,
+                    segment.data.len()
+                );
+            }
+        }
+
+        // Erase regions if requested
+        if erase == "erase" {
+            if !self.args.silent {
+                println!("Erasing flash regions...");
+            }
+
+            for (i, segment) in segments.iter().enumerate() {
+                let aligned_start = Self::align_down(segment.address, ALIGNMENT);
+                let aligned_end = Self::align_up(segment.address + segment.data.len() as u32, ALIGNMENT);
+                let aligned_length = aligned_end - aligned_start;
+
+                if !self.args.silent {
+                    println!(
+                        "Erasing segment #{}: address=0x{:08X}, length=0x{:08X}",
+                        i + 1,
+                        aligned_start,
+                        aligned_length
+                    );
+                }
+
+                let status = self.boot.flash_erase_region(aligned_start, aligned_length, memory_id)?;
+                if !status.is_success() {
+                    self.display_status(status);
+                    return Err(CommunicationError::InvalidData);
+                }
+            }
+        }
+
+        // Write segments
+        for (i, segment) in segments.iter().enumerate() {
+            if !self.args.silent {
+                println!(
+                    "Writing segment #{}: address=0x{:08X}, size={} bytes",
+                    i + 1,
+                    segment.address,
+                    segment.data.len()
+                );
+            }
+
+            let status = self.boot.write_memory(segment.address, memory_id, &segment.data)?;
+            if !status.is_success() {
+                self.display_status(status);
+                return Err(CommunicationError::InvalidData);
+            }
+        }
+
+        if !self.args.silent {
+            println!("Flash image operation completed successfully");
+        }
+
+        Ok(())
+    }
+
+    // Helper methods for alignment
+    fn align_down(value: u32, alignment: u32) -> u32 {
+        value & !(alignment - 1)
+    }
+
+    fn align_up(value: u32, alignment: u32) -> u32 {
+        (value + alignment - 1) & !(alignment - 1)
     }
 }
