@@ -5,14 +5,20 @@ backend-path = ["."]
 
 [project]
 name = "pymboot-rs"
-version = "0.2.0"
-requires-python = ">=3.9"
+version = "0.3.0"
+requires-python = ">=3.10"
 description = "Python bindings for McuBoot implementation in Rust, providing high-performance communication with NXP MCU bootloader."
 readme = "README.md"
 authors = [{ name = "NXP", email = "spsdk@nxp.com" }]
 license = "BSD-3-Clause"
 classifiers = [
     "Programming Language :: Rust",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]

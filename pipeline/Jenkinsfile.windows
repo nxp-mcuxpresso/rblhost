@@ -10,6 +10,7 @@ pipeline {
     
     options {
         timeout(time: 1, unit: 'HOURS')   // timeout on whole pipeline job
+        buildDiscarder(logRotator(daysToKeepStr: '30'))   // discard builds older than one month
     }
     
     stages {
@@ -72,7 +73,7 @@ pipeline {
             steps {
                 bat '''
                     set PATH=%CARGO_HOME%\\bin;%PATH%
-                    cargo clippy --all-targets --features python,c_api -- -D warnings
+                    cargo clippy --all-targets --features python,c_api,csharp -- -D warnings
                 '''
             }
         }
@@ -99,12 +100,58 @@ pipeline {
         stage('Build Python Package') {
             steps {
                 withVenv(
-                    'python -m pip install --upgrade pip',
-                    'pip install setuptools setuptools-rust wheel',
+                    'uv pip install setuptools setuptools-rust build',
                     'set PATH=%CARGO_HOME%\\bin;%PATH%',
-                    'pip install -e .',
-                    'pip wheel . -w dist/'
+                    'uv pip install -e .',
+                    'python -m build --wheel --outdir dist/'
                 )
+            }
+        }
+        
+        stage('Build C Library') {
+            steps {
+                // Build the C API shared library and header with only the c_api
+                // feature enabled (not combined with python - see README note
+                // about python+c_api compiled together potentially producing
+                // malfunctioning libraries). This must run AFTER "Build Python
+                // Package": that stage also compiles the shared "rblhost"/
+                // "mboot" crate (via setuptools-rust, without the c_api
+                // feature) into the same target/release/ directory, which
+                // would otherwise overwrite this c_api-enabled library with
+                // one missing the C API symbols (e.g. mboot_create).
+                bat '''
+                    set PATH=%CARGO_HOME%\\bin;%PATH%
+                    cargo build --release --features c_api
+                '''
+            }
+        }
+
+        stage('Build C# Bindings') {
+            steps {
+                // csharp implies c_api, so this rebuilds the same C API shared
+                // library/symbols as the previous stage and additionally runs
+                // csbindgen to generate bindings/csharp/NativeMethods.g.cs.
+                // Kept as its own stage so a csbindgen-specific failure is
+                // clearly attributed here, separate from the C library build.
+                bat '''
+                    set PATH=%CARGO_HOME%\\bin;%PATH%
+                    cargo build --release --features csharp
+                    if not exist bindings\\csharp\\NativeMethods.g.cs exit /b 1
+                '''
+
+                // Compile the generated bindings + example to catch any
+                // csbindgen output that doesn't actually compile against the
+                // real C# compiler. .NET SDK is provisioned on all build
+                // agents via the spsdk_infra dotnet ansible role (installed
+                // via Chocolatey to C:\Program Files\dotnet). The Jenkins
+                // agent's "bat" steps do not reliably inherit machine PATH
+                // updates either (same issue observed on macOS/Linux), so
+                // add it explicitly, same as CARGO_HOME is added explicitly
+                // for cargo/rustc above.
+                bat '''
+                    set PATH=C:\\Program Files\\dotnet;%PATH%
+                    dotnet build examples\\csharp
+                '''
             }
         }
         
@@ -117,6 +164,23 @@ pipeline {
                 // Archive Python wheel
                 bat 'if not exist artifacts\\python mkdir artifacts\\python'
                 bat 'copy dist\\*.whl artifacts\\python\\'
+                
+                // Archive C library and header
+                bat 'if not exist artifacts\\c\\windows\\include mkdir artifacts\\c\\windows\\include'
+                bat 'copy target\\release\\mboot.dll artifacts\\c\\windows\\'
+                bat 'copy target\\release\\mboot.dll.lib artifacts\\c\\windows\\'
+                bat 'copy include\\mboot.h artifacts\\c\\windows\\include\\'
+
+                // Archive C# bindings
+                bat 'if not exist artifacts\\csharp mkdir artifacts\\csharp'
+                bat 'copy bindings\\csharp\\NativeMethods.g.cs artifacts\\csharp\\'
+
+                // Verify the shared library is loadable (acceptance criteria: each
+                // platform package must be generated and loadable)
+                withVenv(
+                    "python -c \"import ctypes; lib = ctypes.CDLL('artifacts/c/windows/mboot.dll'); assert hasattr(lib, 'mboot_create'); print('mboot.dll loaded OK')\""
+                )
+                
                 powershell '''
                     Compress-Archive -Path artifacts -DestinationPath "blhost-${env:BUILD_NUMBER}.zip" -Force
                 '''

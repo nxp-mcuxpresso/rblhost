@@ -56,7 +56,11 @@ impl Display for DeviceId {
     derive(derive_more::TryFrom, strum::EnumString),
     try_from(repr),
     strum(serialize_all = "kebab-case"),
-    cfg_attr(feature = "python", gen_stub_pyclass_enum, pyclass(eq, eq_int, name = "PropertyTag"))
+    cfg_attr(
+        feature = "python",
+        gen_stub_pyclass_enum,
+        pyclass(eq, eq_int, from_py_object, name = "PropertyTag")
+    )
 )]
 pub enum PropertyTag {
     /// Current version of the bootloader

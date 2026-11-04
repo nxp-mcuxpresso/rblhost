@@ -9,7 +9,11 @@
 use core::panic;
 use std::sync::Mutex;
 
-use pyo3::{Py, prelude::*, types::PyType};
+use pyo3::{
+    Py, Python,
+    prelude::*,
+    types::{PyBytes, PyType},
+};
 
 use crate::{
     CommunicationError, KeyProvisioningResponse, McuBoot,
@@ -294,24 +298,49 @@ impl McuBootPython {
     /// Read from MCU flash program once region (eFuse/OTP).
     ///
     /// :param index: Start index of the eFuse/OTP region
-    /// :param count: Number of bytes to read (must be 4)
-    /// :return: The read value as 32-bit integer; None in case of failure
-    fn flash_read_once(&mut self, index: u32, count: u32) -> Option<u32> {
+    /// :param count: Number of bytes to read (must be 4 or 8)
+    /// :return: The read value as raw bytes (`count` bytes long, little-endian); None in case of
+    ///     failure
+    fn flash_read_once(&mut self, py: Python<'_>, index: u32, count: u32) -> Option<Py<PyBytes>> {
         let res = self.get_mut_interface().flash_read_once(index, count);
-        self.process_result(res)
+        self.process_result(res).map(|data| PyBytes::new(py, &data).unbind())
     }
 
     /// Write into MCU once program region (eFuse/OTP).
     ///
     /// :param index: Start index of the eFuse/OTP region
-    /// :param count: Number of bytes to write (must be 4)
-    /// :param data: 32-bit value to write
+    /// :param count: Number of bytes to write (must be 4 or 8)
+    /// :param data: Value to write (up to 64-bit, only the low `count` bytes are sent)
     /// :param verify: If true, reads back and verifies the written value, defaults to False
     /// :return: False in case of any problem; True otherwise
     #[pyo3(signature = (index, count, data, verify = None))]
-    fn flash_program_once(&mut self, index: u32, count: u32, data: u32, verify: Option<bool>) -> bool {
+    fn flash_program_once(&mut self, index: u32, count: u32, data: u64, verify: Option<bool>) -> bool {
         let verify = verify.unwrap_or(false);
         let res = self.get_mut_interface().flash_program_once(index, count, data, verify);
+        self.process_status_res(res)
+    }
+
+    /// Read a 32-bit word from the eFuse/OTP region.
+    ///
+    /// :param index: Index of the OTP word (not the shadowed memory address)
+    /// :return: Read value as 32-bit integer; None in case of failure
+    fn efuse_read_once(&mut self, index: u32) -> Option<u32> {
+        let res = self.get_mut_interface().efuse_read_once(index);
+        self.process_result(res)
+    }
+
+    /// Program a 32-bit word into the eFuse/OTP region.
+    ///
+    /// Each efuse bit can only be programmed once. Set bit 24 of `index` to lock the word.
+    ///
+    /// :param index: Index of the OTP word (not the shadowed memory address)
+    /// :param value: 32-bit value to program
+    /// :param verify: If true, reads back and verifies the written value, defaults to False
+    /// :return: False in case of any problem; True otherwise
+    #[pyo3(signature = (index, value, verify = None))]
+    fn efuse_program_once(&mut self, index: u32, value: u32, verify: Option<bool>) -> bool {
+        let verify = verify.unwrap_or(false);
+        let res = self.get_mut_interface().efuse_program_once(index, value, verify);
         self.process_status_res(res)
     }
     /// Key provisioning: Enroll Command (start PUF).

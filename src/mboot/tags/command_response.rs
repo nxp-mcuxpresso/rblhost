@@ -32,17 +32,21 @@ pub enum CmdResponseTag {
     #[strum(to_string = "Get Property Response: {0:#04x?}")]
     GetProperty(Box<[u32]>) = 0xA7,
 
-    /// Flash read once response containing the read value
-    #[strum(to_string = "Flash Read Once Response")]
-    FlashReadOnce(u32) = 0xAF,
+    /// Flash read once response containing the raw bytes read from the OTP/eFuse region.
+    ///
+    /// The number of bytes matches the `count` (4 or 8) requested by the corresponding
+    /// [`crate::tags::command::CommandTag::FlashReadOnce`] command, mirroring blhost's
+    /// `FlashReadOnceResponse.data` (see `spsdk/mboot/commands.py`).
+    #[strum(to_string = "Flash Read Once Response: {0:02X?}")]
+    FlashReadOnce(Box<[u8]>) = 0xAF,
 
     /// Flash read resource response
     #[strum(to_string = "Flash Read Resource Response")]
     FlashReadResource = 0xB0,
 
-    /// Key blob creation response
+    /// Key blob creation response containing the generated key blob
     #[strum(to_string = "Create Key Blob")]
-    KeyBlob = 0xB3,
+    KeyBlob(Box<[u8]>) = 0xB3,
 
     /// Key provisioning response containing operation results
     #[strum(to_string = "Key Provisioning Response: {0:02X?}")]
@@ -75,40 +79,96 @@ impl CmdResponseTag {
     /// None, it means there was no appropriate command number for `code`.
     ///
     /// # Panics
-    /// Panics if required data is missing or `code` is not yet implemented.
+    /// Panics if `code` is recognized but its response parser is not implemented.
     #[must_use]
     pub fn from_code(code: u8, params: &[u8], data_phase: Option<&[u8]>) -> Option<CmdResponseTag> {
-        CmdResTagDis::try_from(code)
-            .map(|tag| match tag {
-                CmdResTagDis::Generic => CmdResponseTag::Generic(to_u32(params).next().unwrap()),
-                CmdResTagDis::GetProperty => CmdResponseTag::GetProperty(to_u32(params).collect()),
-                CmdResTagDis::ReadMemory => {
-                    CmdResponseTag::ReadMemory(data_phase.expect("no data phase sent for ReadMemory!").into())
-                }
-                CmdResTagDis::FlashReadOnce => {
-                    // The Flash Read Once response contains the value in the params
-                    // The first parameter is typically the byte count, and the second is the actual data
-                    let values: Vec<u32> = to_u32(params).collect();
-                    if values.len() >= 2 {
-                        CmdResponseTag::FlashReadOnce(values[1])
-                    } else {
-                        // If there's only one value or none, return 0 or handle as appropriate
-                        CmdResponseTag::FlashReadOnce(values.first().copied().unwrap_or(0))
-                    }
-                }
-                CmdResTagDis::TrustProvisioning => CmdResponseTag::TrustProvisioning(to_u32(params).collect()),
-                CmdResTagDis::KeyProvisioning => {
-                    let data_phase_boxed = data_phase.map(Box::from);
-                    CmdResponseTag::KeyProvisioning(to_u32(params).collect(), data_phase_boxed)
-                }
-                _ => unimplemented!("this CommandResponse parser was not yet implemented"),
-            })
-            .ok()
+        let tag = CmdResTagDis::try_from(code).ok()?;
+        match tag {
+            CmdResTagDis::Generic => Some(CmdResponseTag::Generic(to_u32(params).next().unwrap())),
+            CmdResTagDis::GetProperty => Some(CmdResponseTag::GetProperty(to_u32(params).collect())),
+            CmdResTagDis::ReadMemory => data_phase.map(|data| CmdResponseTag::ReadMemory(data.into())),
+            CmdResTagDis::FlashReadOnce => {
+                // Response layout (after the status word, which is stripped from `params`
+                // before this function is called): a `length` word followed by `length`
+                // bytes of OTP/eFuse data (4 or 8 bytes), padded to a 32-bit boundary. This
+                // mirrors blhost's `FlashReadOnceResponse.length`/`.data` fields (see
+                // `spsdk/mboot/commands.py`), which likewise return the full payload instead
+                // of a single 32-bit word so that 8-byte reads are not silently truncated.
+                let length = params
+                    .get(..4)
+                    .map_or(0, |bytes| u32::from_le_bytes(bytes.try_into().unwrap()) as usize);
+                let data = params.get(4..).unwrap_or(&[]);
+                let data = data.get(..length).unwrap_or(data);
+                Some(CmdResponseTag::FlashReadOnce(data.into()))
+            }
+            CmdResTagDis::KeyBlob => data_phase.map(|data| CmdResponseTag::KeyBlob(data.into())),
+            CmdResTagDis::TrustProvisioning => Some(CmdResponseTag::TrustProvisioning(to_u32(params).collect())),
+            CmdResTagDis::KeyProvisioning => {
+                let data_phase_boxed = data_phase.map(Box::from);
+                Some(CmdResponseTag::KeyProvisioning(
+                    to_u32(params).collect(),
+                    data_phase_boxed,
+                ))
+            }
+            CmdResTagDis::FlashReadResource => {
+                unimplemented!("this CommandResponse parser was not yet implemented")
+            }
+        }
     }
 }
 
 fn to_u32(params: &[u8]) -> impl Iterator<Item = u32> + '_ {
-    params
-        .chunks_exact(4)
-        .map(|bytes| u32::from_le_bytes(bytes.try_into().unwrap()))
+    params.as_chunks::<4>().0.iter().map(|bytes| u32::from_le_bytes(*bytes))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::CmdResponseTag;
+
+    /// A 4-byte `flash-read-once` read must return exactly those 4 bytes, not a value derived
+    /// from a hard-coded word offset.
+    #[test]
+    fn test_flash_read_once_4_bytes() {
+        // length = 4, data = 0x12345678 (little-endian)
+        let params: [u8; 8] = [0x04, 0x00, 0x00, 0x00, 0x78, 0x56, 0x34, 0x12];
+        let tag = CmdResponseTag::from_code(0xAF, &params, None).expect("known response code");
+        match tag {
+            CmdResponseTag::FlashReadOnce(bytes) => assert_eq!(&*bytes, &[0x78, 0x56, 0x34, 0x12]),
+            other => panic!("unexpected tag: {other:?}"),
+        }
+    }
+
+    /// A 8-byte `flash-read-once` read must return the full 8-byte payload. Previously, rblhost
+    /// silently truncated this down to the second 32-bit word only.
+    #[test]
+    fn test_flash_read_once_8_bytes() {
+        // length = 8, data = 0x1122334455667788 (little-endian)
+        let params: [u8; 12] = [0x08, 0x00, 0x00, 0x00, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11];
+        let tag = CmdResponseTag::from_code(0xAF, &params, None).expect("known response code");
+        match tag {
+            CmdResponseTag::FlashReadOnce(bytes) => {
+                assert_eq!(
+                    &*bytes,
+                    &[0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11],
+                    "flash-read-once with count=8 must not be truncated to a single 32-bit word"
+                );
+            }
+            other => panic!("unexpected tag: {other:?}"),
+        }
+    }
+
+    #[test]
+    fn test_key_blob_response_includes_data_phase() {
+        let blob = [0x11, 0x22, 0x33, 0x44];
+        let tag = CmdResponseTag::from_code(0xB3, &[4, 0, 0, 0], Some(&blob)).expect("known response code");
+        match tag {
+            CmdResponseTag::KeyBlob(bytes) => assert_eq!(&*bytes, &blob),
+            other => panic!("unexpected tag: {other:?}"),
+        }
+    }
+
+    #[test]
+    fn test_key_blob_response_requires_data_phase() {
+        assert!(CmdResponseTag::from_code(0xB3, &[4, 0, 0, 0], None).is_none());
+    }
 }

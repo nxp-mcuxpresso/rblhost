@@ -152,10 +152,12 @@ pub enum CommandTag<'a> {
     FlashProgramOnce {
         /// OTP memory index
         index: u32,
-        /// Number of bytes to program
+        /// Number of bytes to program (must be 4 or 8)
         count: u32,
-        /// Data to program
-        data: u32,
+        /// Data to program. For `count == 4`, only the low 32 bits are sent on the wire; for
+        /// `count == 8`, all 64 bits are sent as two little-endian words, matching blhost's
+        /// `data.to_bytes(byte_count, ...)` behavior (`blhost.py:423`).
+        data: u64,
     } = 0x0E,
 
     /// Read One-Time Programmable (OTP) memory
@@ -186,7 +188,16 @@ pub enum CommandTag<'a> {
 
     /// Generate encrypted key blob
     #[display("Generate Key Blob")]
-    GenerateKeyBlob = 0x13,
+    GenerateKeyBlob {
+        /// BKEK selector
+        key_sel: u32,
+        /// Number of bytes to process or return
+        length: u32,
+        /// Generate (0) or retrieve (1) the key blob
+        option: u32,
+        /// DEK data for the generate phase
+        data: Option<&'a [u8]>,
+    } = 0x13,
 
     /// Program device fuses
     #[display("Program Fuse")]
@@ -295,7 +306,27 @@ impl CommandToParams for CommandTag<'_> {
             CommandTag::TrustProvisioning(operation) => operation.to_params(),
             CommandTag::KeyProvisioning(operation) => operation.to_params(),
             CommandTag::FlashReadOnce { index, count } => (vec![index, count], None),
-            CommandTag::FlashProgramOnce { index, count, data } => (vec![index, count, data], None),
+            CommandTag::FlashProgramOnce { index, count, data } => {
+                // Matches blhost's `data.to_bytes(byte_count, byteorder="little")`
+                // (`blhost.py:422-423`): send exactly `count` bytes of `data`, as little-endian
+                // u32 words (1 word for count == 4, 2 words for count == 8).
+                let data_bytes = data.to_le_bytes();
+                let mut params = vec![index, count];
+                params.extend(
+                    data_bytes[..count as usize]
+                        .as_chunks::<4>()
+                        .0
+                        .iter()
+                        .map(|chunk| u32::from_le_bytes(*chunk)),
+                );
+                (params, None)
+            }
+            CommandTag::GenerateKeyBlob {
+                key_sel,
+                length,
+                option,
+                data,
+            } => (vec![key_sel, length, option], data),
             CommandTag::Execute {
                 start_address,
                 argument,
@@ -329,11 +360,40 @@ pub trait CommandToParams {
     #[must_use]
     fn to_params(&self) -> (Vec<u32>, Option<&[u8]>);
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{CommandTag, CommandToParams};
+
+    #[test]
+    fn test_generate_key_blob_command_parameters() {
+        let dek = [0x11, 0x22, 0x33, 0x44];
+        let generate = CommandTag::GenerateKeyBlob {
+            key_sel: 2,
+            length: dek.len() as u32,
+            option: 0,
+            data: Some(&dek),
+        };
+        assert_eq!(generate.to_params(), (vec![2, 4, 0], Some(&dek[..])));
+
+        let retrieve = CommandTag::GenerateKeyBlob {
+            key_sel: 2,
+            length: 72,
+            option: 1,
+            data: None,
+        };
+        assert_eq!(retrieve.to_params(), (vec![2, 72, 1], None));
+    }
+}
 /// Trust provisioning operations for device security setup.
 ///
 /// These operations handle OEM master share generation and configuration
 /// for establishing device trust relationships.
-#[cfg_attr(feature = "python", gen_stub_pyclass_enum, pyclass(eq, name = "TrustProvOperation"))]
+#[cfg_attr(
+    feature = "python",
+    gen_stub_pyclass_enum,
+    pyclass(eq, from_py_object, name = "TrustProvOperation")
+)]
 #[derive(PartialEq, Eq, clap::Subcommand, Clone, Copy, Debug, derive_more::Display)]
 #[command(rename_all = "snake_case")]
 pub enum TrustProvOperation {
@@ -531,7 +591,7 @@ pub enum KeyProvOperation {
         file: String,
 
         /// Use hexdump format
-        #[arg(long, short, default_value_t = false)]
+        #[arg(long = "use-hexdump", alias = "use_hexdump", short = 'h', default_value_t = false)]
         use_hexdump: bool,
     },
 }
@@ -571,7 +631,7 @@ impl CommandToParams for KeyProvOperation {
 #[cfg_attr(
     feature = "python",
     gen_stub_pyclass_enum,
-    pyclass(eq, eq_int, name = "KeyProvUserKeyType")
+    pyclass(eq, eq_int, from_py_object, name = "KeyProvUserKeyType")
 )]
 #[repr(u32)]
 #[derive(PartialEq, Eq, derive_more::TryFrom, derive_more::Display, Clone, Copy, Debug, strum::EnumString)]

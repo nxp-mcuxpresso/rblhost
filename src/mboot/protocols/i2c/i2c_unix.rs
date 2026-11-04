@@ -54,7 +54,7 @@ impl ProtocolOpen for I2CProtocol {
             Some(num_str) => {
                 trace!("num_str: {num_str}");
                 let slave_address: u8 = parse_number(num_str).map_err(CommunicationError::ParseError)?;
-                (format!("{device_path}:{slave_address:#02X}"), slave_address)
+                (format!("{device_path}:{slave_address:#04X}"), slave_address)
             }
             None => (identifier.to_owned(), DEFAULT_SLAVE),
         };
@@ -76,7 +76,10 @@ impl ProtocolOpen for I2CProtocol {
             let i2c_slave = 0x0703; // I2C_SLAVE ioctl command
             let result = libc::ioctl(device.as_raw_fd(), i2c_slave, libc::c_ulong::from(slave_address));
             if result < 0 {
-                return Err(io::Error::last_os_error().into());
+                // The device file itself was already opened successfully above, so a failure
+                // here is about the configured slave address (e.g. out of range, or already
+                // claimed by another kernel driver), not a file-access/permission problem.
+                return Err(CommunicationError::NoResponse(io::Error::last_os_error()));
             }
         }
 
@@ -159,15 +162,26 @@ impl Protocol for I2CProtocol {
 }
 
 impl I2CProtocol {
-    fn read_static(&mut self, buf: &mut [u8]) -> Result<(), io::Error> {
-        self.device.read_exact(buf)?;
+    /// Converts an I/O error from a read/write syscall performed *after* the I2C device file was
+    /// already opened successfully into [`CommunicationError::NoResponse`].
+    ///
+    /// Once `/dev/i2c-N` has been opened, any failure while actually talking to the configured
+    /// slave address (missing ACK, bus timeout, etc.) means there is simply no device responding
+    /// at that address - it is not a permission/access problem, even if the OS-reported error
+    /// text happens to say so (this varies between kernel/vendor I2C drivers).
+    fn no_response(e: io::Error) -> CommunicationError {
+        CommunicationError::NoResponse(e)
+    }
+
+    fn read_static(&mut self, buf: &mut [u8]) -> ResultComm<()> {
+        self.device.read_exact(buf).map_err(Self::no_response)?;
         debug!("{}: {buf:02X?}", cstr!("<r!>RX"));
         Ok(())
     }
 
-    fn write(&mut self, buf: &[u8]) -> Result<(), io::Error> {
+    fn write(&mut self, buf: &[u8]) -> ResultComm<()> {
         debug!("{}: {buf:02X?}", cstr!("<g!>TX"));
-        self.device.write_all(buf)
+        self.device.write_all(buf).map_err(Self::no_response)
     }
 
     fn ping(&mut self) -> ResultComm<PingResponse> {
@@ -180,9 +194,7 @@ impl I2CProtocol {
         let mut start_byte = [0u8; 1];
 
         for i in 0..MAX_PING_RESPONSE_DUMMY_BYTES {
-            if let Err(e) = self.device.read_exact(&mut start_byte) {
-                return Err(CommunicationError::IOError(e));
-            }
+            self.device.read_exact(&mut start_byte).map_err(Self::no_response)?;
 
             if start_byte[0] == 0x5A {
                 trace!("FRAME_START_BYTE received in {}. attempt.", i + 1);
@@ -198,7 +210,7 @@ impl I2CProtocol {
 
         // Read frame type (should be PingResponse code)
         let mut frame_type = [0u8; 1];
-        self.device.read_exact(&mut frame_type)?;
+        self.device.read_exact(&mut frame_type).map_err(Self::no_response)?;
 
         if frame_type[0] != PingResponse::get_code() {
             return Err(CommunicationError::InvalidHeader);
@@ -206,7 +218,7 @@ impl I2CProtocol {
 
         // Read the rest of the response (8 bytes)
         let mut response_data = [0u8; 8];
-        self.device.read_exact(&mut response_data)?;
+        self.device.read_exact(&mut response_data).map_err(Self::no_response)?;
 
         // Combine all parts for CRC check and debug output
         let mut buf = [0u8; 10];
@@ -226,7 +238,7 @@ impl I2CProtocol {
         Ok(res)
     }
 
-    fn send_ack(&mut self) -> Result<(), std::io::Error> {
+    fn send_ack(&mut self) -> ResultComm<()> {
         trace!("Sending ACK");
         self.write(&[0x5a, ACK])
     }
@@ -274,5 +286,73 @@ impl I2CProtocol {
         }
 
         Err(CommunicationError::Timeout)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::io;
+
+    use crate::mboot::protocols::{CommunicationError, ProtocolOpen};
+
+    use super::I2CProtocol;
+
+    /// Opening a device node that doesn't exist at all must still be reported as
+    /// [`CommunicationError::FileError`] (a real file-access problem), not confused with
+    /// [`CommunicationError::NoResponse`] (which only applies once the file is already open).
+    #[test]
+    fn test_open_nonexistent_device_path_is_file_error() {
+        let err = I2CProtocol::open("/dev/i2c-this-does-not-exist-12345:0x10").unwrap_err();
+        assert!(
+            matches!(err, CommunicationError::FileError(_)),
+            "expected FileError, got {err:?}"
+        );
+    }
+
+    /// Regardless of which OS error code a particular I2C driver reports for "no device at this
+    /// address" (`ENXIO`, `EREMOTEIO` on Linux, `EIO`, or even a permission-sounding one on some
+    /// drivers), once the device file was already opened, [`I2CProtocol::no_response`] must
+    /// always classify it as [`CommunicationError::NoResponse`] (RBLHOST-93).
+    ///
+    /// The *fixed* part of the resulting message (everything we control, before the raw OS error
+    /// text that is appended in parentheses purely for debugging) must never itself claim an
+    /// access/permission problem - even though the OS-reported text in parentheses may
+    /// legitimately say "permission denied" for some errno values (e.g. `EACCES`), since that is
+    /// just the OS's own wording for the underlying syscall error, not our diagnosis.
+    #[test]
+    fn test_no_response_never_reports_access_denied() {
+        // `ENXIO`, `EIO`, `EACCES` and `ETIMEDOUT` are defined by `libc` on every Unix target we
+        // support. `EREMOTEIO` (used by the Linux `i2c-dev` driver for "no ACK from slave") is
+        // Linux-specific and does not exist in `libc` on macOS/BSD, so it is tested separately.
+        #[cfg_attr(
+            not(target_os = "linux"),
+            allow(unused_mut, reason = "only mutated on Linux, where EREMOTEIO is pushed below")
+        )]
+        let mut raw_os_errors = vec![libc::ENXIO, libc::EIO, libc::EACCES, libc::ETIMEDOUT];
+        #[cfg(target_os = "linux")]
+        raw_os_errors.push(libc::EREMOTEIO);
+
+        for raw_os_error in raw_os_errors {
+            let io_err = io::Error::from_raw_os_error(raw_os_error);
+            let comm_err = I2CProtocol::no_response(io_err);
+
+            assert!(
+                matches!(comm_err, CommunicationError::NoResponse(_)),
+                "errno {raw_os_error} should map to NoResponse, got {comm_err:?}"
+            );
+
+            let message = comm_err.to_string().to_lowercase();
+            let our_prefix = message.split('(').next().unwrap_or(&message);
+            assert!(
+                !our_prefix.contains("access") && !our_prefix.contains("denied"),
+                "our own message for errno {raw_os_error} must not sound like an \
+                 access/permission error, got: {our_prefix}"
+            );
+            assert!(
+                our_prefix.contains("no response"),
+                "message for errno {raw_os_error} should clearly state no response was \
+                 received, got: {message}"
+            );
+        }
     }
 }

@@ -29,3 +29,18 @@ cmake --build .
 ```
 This will build examples either in the `build` directory directly or `Debug` directory, depending on your compiler.
 
+## C#
+Follow [instructions on building the C# bindings](../README.md#building-c-net-bindings). The example project references the generated `bindings/csharp/NativeMethods.g.cs` file directly, so it must exist before building. From the [csharp folder](csharp/), run:
+```bash
+dotnet run -- <device> [uart|i2c|usb]
+```
+The protocol argument defaults to `uart` if omitted. To run with a `COM3` UART device, you would write the following:
+```bash
+dotnet run -- COM3
+```
+To run over USB-HID instead, specifying the device by VID/PID (see [examples/c/get_property_usb.c](c/get_property_usb.c) for the full identifier format):
+```bash
+dotnet run -- "0x1FC9,0x0135" usb
+```
+The native `mboot` library (`mboot.dll`/`libmboot.so`/`libmboot.dylib`) built in [Building C# (.NET) bindings](../README.md#building-c-net-bindings) must be discoverable at runtime - either copy it next to the built `get_property.exe`/`get_property` binary (e.g. `target/debug` or `target/release` from the main build), or see [Library Not Found](../README.md#library-not-found) for setting the platform-specific library search path.
+

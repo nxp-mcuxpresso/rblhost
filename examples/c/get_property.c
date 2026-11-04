@@ -49,6 +49,6 @@ int main(int argc, char** argv) {
     }
     
     // Free-ing allocated memory
-    mboot_free_response_words(response.response_words);
+    mboot_free_response_words(response.response_words, response.response_words_len);
     mboot_destroy(device);
 }
