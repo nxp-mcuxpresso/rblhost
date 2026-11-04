@@ -111,7 +111,7 @@ impl ReservedRegions {
     /// Panics if the data array length is odd, as this indicates malformed data
     #[must_use]
     pub fn parse(data: &[u32]) -> Self {
-        assert!(data.len() % 2 == 0, "reserved regions value is not odd");
+        assert!(data.len().is_multiple_of(2), "reserved regions value is not odd");
         let regions = data.chunks(2).map(|region| (region[0], region[1])).collect();
         ReservedRegions { regions }
     }

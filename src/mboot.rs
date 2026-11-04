@@ -1,4 +1,4 @@
-// Copyright 2025 NXP
+// Copyright 2025-2026 NXP
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
@@ -435,6 +435,44 @@ where
         }
     }
 
+    /// Generate a key blob by wrapping a DEK with the selected BKEK.
+    ///
+    /// # Arguments
+    ///
+    /// * `dek_data` - Data Encryption Key bytes to wrap
+    /// * `key_sel` - BKEK selector (0-3)
+    ///
+    /// # Returns
+    ///
+    /// The generated key blob.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`CommunicationError`] if communication fails or the device rejects the request.
+    pub fn generate_key_blob(&mut self, dek_data: &[u8], key_sel: u32) -> ResultComm<Box<[u8]>> {
+        let dek_length = u32::try_from(dek_data.len()).or(Err(CommunicationError::InvalidData))?;
+        self.send_command(&CommandPacket::new_data_phase(CommandTag::GenerateKeyBlob {
+            key_sel,
+            length: dek_length,
+            option: 0,
+            data: Some(dek_data),
+        }))?;
+        // final generic response of the DEK data phase
+        self.read_cmd_response()?;
+
+        self.send_command(&CommandPacket::new_none_flag(CommandTag::GenerateKeyBlob {
+            key_sel,
+            length: 72,
+            option: 1,
+            data: None,
+        }))?;
+        let response = self.read_cmd_response()?;
+        match response.tag {
+            CmdResponseTag::KeyBlob(bytes) => Ok(bytes),
+            _ => Err(CommunicationError::InvalidPacketReceived),
+        }
+    }
+
     /// Configure external memory
     ///
     /// # Arguments
@@ -570,27 +608,36 @@ where
 
     /// Read from MCU flash program once region (eFuse/OTP)
     ///
-    /// Reads a 32-bit value from the one-time programmable (OTP) memory region.
+    /// Reads the raw bytes from the one-time programmable (OTP) memory region.
     /// This memory can only be written once and is typically used for storing
     /// permanent configuration or security keys.
     ///
     /// # Arguments
     ///
     /// * `index` - Start index of the eFuse/OTP region
-    /// * `count` - Number of bytes to read (must be 4)
+    /// * `count` - Number of bytes to read (must be 4 or 8)
     ///
     /// # Returns
     ///
-    /// The read value as a 32-bit unsigned integer
+    /// The read value as raw little-endian bytes, `count` bytes long. This matches blhost's
+    /// `FlashReadOnceResponse.data`, which also returns the full requested payload instead of
+    /// truncating 8-byte reads down to a single 32-bit word.
     ///
     /// # Errors
     ///
-    /// Returns [`CommunicationError`] if:
+    /// Returns [`CommunicationError::ParseError`] if `count` is not 4 or 8. Otherwise, returns
+    /// [`CommunicationError`] if:
     /// - Communication with device fails
     /// - Invalid response type is received
     /// - The specified index is out of range
     /// - The OTP region is locked or inaccessible
-    pub fn flash_read_once(&mut self, index: u32, count: u32) -> ResultComm<u32> {
+    pub fn flash_read_once(&mut self, index: u32, count: u32) -> ResultComm<Box<[u8]>> {
+        if count != 4 && count != 8 {
+            return Err(CommunicationError::ParseError(format!(
+                "invalid count {count}: flash-read-once only supports 4 or 8 byte reads, matching blhost"
+            )));
+        }
+
         let command = CommandPacket::new_none_flag(CommandTag::FlashReadOnce { index, count });
         self.send_command(&command)?;
 
@@ -603,7 +650,7 @@ where
 
     /// Write into MCU once program region (eFuse/OTP)
     ///
-    /// Programs a 32-bit value into the one-time programmable memory region.
+    /// Programs a `count`-byte value into the one-time programmable memory region.
     /// This operation is irreversible - once programmed, the memory cannot be
     /// erased or reprogrammed. In OTP memory, bits can only change from 0 to 1,
     /// never from 1 to 0.
@@ -611,8 +658,10 @@ where
     /// # Arguments
     ///
     /// * `index` - Start index of the eFuse/OTP region
-    /// * `count` - Number of bytes to write (must be 4)
-    /// * `data` - 32-bit value to write
+    /// * `count` - Number of bytes to write (must be 4 or 8, matching blhost's
+    ///   `byte_count` choice)
+    /// * `data` - Value to write. Only the low `count` bytes are sent on the wire,
+    ///   little-endian, matching blhost's `data.to_bytes(byte_count, "little")`
     /// * `verify` - If true, reads back and verifies the written value
     ///
     /// # Returns
@@ -631,9 +680,13 @@ where
     ///
     /// # Errors
     ///
-    /// Any [`CommunicationError`], almost all variants are possible. Verification fail is not an
-    /// error.
-    pub fn flash_program_once(&mut self, index: u32, count: u32, data: u32, verify: bool) -> ResultStatus {
+    /// Returns [`CommunicationError::ParseError`] if `count` is not 4 or 8, or if `data` doesn't
+    /// fit into `count` bytes. Otherwise, any
+    /// other [`CommunicationError`] variant may be returned; almost all are possible.
+    /// Verification fail is not an error.
+    pub fn flash_program_once(&mut self, index: u32, count: u32, data: u64, verify: bool) -> ResultStatus {
+        validate_flash_program_once_args(count, data)?;
+
         let command = CommandPacket::new_none_flag(CommandTag::FlashProgramOnce { index, count, data });
         self.send_command(&command)?;
 
@@ -642,8 +695,13 @@ where
         if verify && response.status.is_success() {
             // For verification, we read back the value and check if the bits we set are still set
             // Note: In OTP, we can only set bits from 0 to 1, not vice versa
-            match self.flash_read_once(index & ((1 << 24) - 1), count) {
-                Ok(read_value) => {
+            match self.flash_read_once(index & (EFUSE_LOCK_FLAG - 1), count) {
+                Ok(read_bytes) => {
+                    let mut word = [0u8; 8];
+                    let len = read_bytes.len().min(8);
+                    word[..len].copy_from_slice(&read_bytes[..len]);
+                    let read_value = u64::from_le_bytes(word);
+
                     if read_value & data == data {
                         Ok(response.status)
                     } else {
@@ -656,6 +714,55 @@ where
         } else {
             Ok(response.status)
         }
+    }
+
+    /// Read a 32-bit word from the eFuse/OTP region
+    ///
+    /// Convenience wrapper over [`McuBoot::flash_read_once`] with a fixed 4-byte count, matching
+    /// blhost's `efuse-read-once` command (`McuBoot.efuse_read_once` in SPSDK).
+    ///
+    /// # Arguments
+    ///
+    /// * `index` - Index of the OTP word (not the shadowed memory address)
+    ///
+    /// # Returns
+    ///
+    /// The read 32-bit value, decoded as little-endian.
+    ///
+    /// # Errors
+    ///
+    /// Same as [`McuBoot::flash_read_once`].
+    pub fn efuse_read_once(&mut self, index: u32) -> ResultComm<u32> {
+        let bytes = self.flash_read_once(index, 4)?;
+        let mut word = [0u8; 4];
+        let len = bytes.len().min(word.len());
+        word[..len].copy_from_slice(&bytes[..len]);
+        Ok(u32::from_le_bytes(word))
+    }
+
+    /// Program a 32-bit word into the eFuse/OTP region
+    ///
+    /// Convenience wrapper over [`McuBoot::flash_program_once`] with a fixed 4-byte count, matching
+    /// blhost's `efuse-program-once` command (`McuBoot.efuse_program_once` in SPSDK). This operation
+    /// is irreversible.
+    ///
+    /// # Arguments
+    ///
+    /// * `index` - Index of the OTP word (not the shadowed memory address). Set bit 24
+    ///   ([`EFUSE_LOCK_FLAG`]) to request a permanent lock of the word, as blhost's `lock` option does.
+    /// * `data` - 32-bit value to program
+    /// * `verify` - If true, reads back and verifies the written value
+    ///
+    /// # Returns
+    ///
+    /// Status code indicating success or failure. If verification is enabled
+    /// and fails, returns [`StatusCode::OtpVerifyFail`].
+    ///
+    /// # Errors
+    ///
+    /// Same as [`McuBoot::flash_program_once`].
+    pub fn efuse_program_once(&mut self, index: u32, data: u32, verify: bool) -> ResultStatus {
+        self.flash_program_once(index, 4, u64::from(data), verify)
     }
 
     /// Read fuse data
@@ -992,6 +1099,28 @@ where
     }
 }
 
+/// Bit of the eFuse/OTP index requesting a permanent lock of the word, set by blhost's
+/// `efuse-program-once ... lock` option.
+pub const EFUSE_LOCK_FLAG: u32 = 1 << 24;
+
+/// Checks `flash-program-once` arguments before anything is sent to the device: `count` must be
+/// 4 or 8, and `data` must fit into `count` bytes. OTP writes are irreversible, so upper bits that
+/// don't fit into a 4-byte write are rejected instead of silently dropped (blhost raises an error
+/// there too).
+fn validate_flash_program_once_args(count: u32, data: u64) -> ResultComm<()> {
+    if count != 4 && count != 8 {
+        return Err(CommunicationError::ParseError(format!(
+            "invalid count {count}: flash-program-once only supports 4 or 8 byte writes, matching blhost"
+        )));
+    }
+    if count == 4 && data > u64::from(u32::MAX) {
+        return Err(CommunicationError::ParseError(format!(
+            "data 0x{data:X} does not fit into {count} bytes; use count 8 or a 32-bit value"
+        )));
+    }
+    Ok(())
+}
+
 /// Parse status code from raw bytes
 ///
 /// Converts a 4-byte little-endian value into a [`StatusCode`] enum.
@@ -1028,6 +1157,84 @@ mod tests {
         protocols::{ProtocolOpen, uart::UARTProtocol},
         tags::property::{PropertyTag, PropertyTagDiscriminants},
     };
+
+    #[test]
+    fn test_validate_flash_program_once_args() {
+        use super::validate_flash_program_once_args as validate;
+        assert!(validate(4, 0xFFFF_FFFF).is_ok());
+        assert!(validate(8, 0x1122_3344_5566_7788).is_ok());
+        assert!(validate(4, 0x1_0000_0000).is_err());
+        assert!(validate(0x12, 4).is_err());
+        assert!(validate(5, 0).is_err());
+    }
+
+    /// Device replaying scripted responses and recording written packets
+    struct ScriptedDevice {
+        responses: std::collections::VecDeque<Vec<u8>>,
+        written: Vec<Vec<u8>>,
+    }
+
+    impl crate::mboot::protocols::Protocol for ScriptedDevice {
+        fn get_timeout(&self) -> std::time::Duration {
+            std::time::Duration::from_secs(1)
+        }
+
+        fn get_polling_interval(&self) -> std::time::Duration {
+            std::time::Duration::from_millis(1)
+        }
+
+        fn get_identifier(&self) -> &'static str {
+            "scripted"
+        }
+
+        fn read(&mut self, _bytes: usize) -> crate::mboot::ResultComm<Vec<u8>> {
+            unimplemented!()
+        }
+
+        fn write_packet_raw(&mut self, data: &[u8]) -> crate::mboot::ResultComm<()> {
+            self.written.push(data.to_vec());
+            Ok(())
+        }
+
+        fn read_packet_raw(&mut self, _packet_code: u8) -> crate::mboot::ResultComm<Vec<u8>> {
+            self.responses.pop_front().ok_or(crate::CommunicationError::Timeout)
+        }
+    }
+
+    /// Command response packet: tag, flag, reserved, parameter count, status and parameters
+    fn response(tag: u8, flag: u8, params: &[u32]) -> Vec<u8> {
+        let mut packet = vec![tag, flag, 0, u8::try_from(params.len() + 1).unwrap(), 0, 0, 0, 0];
+        for param in params {
+            packet.extend_from_slice(&param.to_le_bytes());
+        }
+        packet
+    }
+
+    #[test]
+    fn test_generate_key_blob_reads_data_phase_response() {
+        const GENERATE_KEY_BLOB: u32 = 0x13;
+        let blob: Vec<u8> = (0..72).collect();
+        let responses = [
+            // max packet size
+            response(0xA7, 0, &[32]),
+            // DEK command accepted, then DEK data phase done
+            response(0xA0, 0, &[GENERATE_KEY_BLOB]),
+            response(0xA0, 0, &[GENERATE_KEY_BLOB]),
+            // key blob with data phase, then final response
+            response(0xB3, 1, &[72]),
+            blob.clone(),
+            response(0xA0, 0, &[GENERATE_KEY_BLOB]),
+        ];
+        let mut boot = McuBoot::new(ScriptedDevice {
+            responses: responses.into(),
+            written: Vec::new(),
+        });
+
+        let key_blob = boot.generate_key_blob(&[0xAB; 16], 0).unwrap();
+
+        assert_eq!(&*key_blob, &blob[..]);
+        assert!(boot.device.responses.is_empty());
+    }
 
     const DEVICE: &str = "COM3";
     fn get_boot() -> McuBoot<UARTProtocol> {

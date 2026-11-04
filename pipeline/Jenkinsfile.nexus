@@ -4,10 +4,34 @@ pipeline {
     agent none
     
     parameters {
-        string(name: 'PYTHON_VERSIONS', defaultValue: '3.9,3.10,3.11,3.12,3.13', description: 'Comma-separated list of Python versions')
+        string(name: 'PYTHON_VERSIONS', defaultValue: '3.10,3.11,3.12,3.13,3.14,3.15', description: 'Comma-separated list of Python versions')
     }
     
     stages {
+        // Only publish to Nexus when the latest master commit is green on all
+        // three per-platform CI jobs. Each build job re-triggers a fresh build
+        // of the "master" branch job (SCM polls the HEAD commit), so the result
+        // always reflects the commit being published - it does NOT merely check
+        // a possibly-stale previous build result.
+        stage('Verify master CI is green') {
+            agent { label 'linux-spsdk' }
+            steps {
+                script {
+                    parallel(
+                        'Linux CI': {
+                            build job: 'spsdk_rblhost_ci/master', wait: true
+                        },
+                        'macOS CI': {
+                            build job: 'spsdk_rblhost_mac/master', wait: true
+                        },
+                        'Windows CI': {
+                            build job: 'spsdk_rblhost_windows/master', wait: true
+                        }
+                    )
+                }
+            }
+        }
+
         stage('Build Wheels') {
             parallel {
                 stage('Linux') {
@@ -20,6 +44,7 @@ pipeline {
                                 pythonVersions: pythonVersionsList,
                                 artifactDir: 'wheels-linux'
                             )
+                            stash(name: 'wheels-linux', includes: 'wheels-linux/*.whl')
                         }
                     }
                 }
@@ -34,6 +59,7 @@ pipeline {
                                 pythonVersions: pythonVersionsList,
                                 artifactDir: 'wheels-macos'
                             )
+                            stash(name: 'wheels-macos', includes: 'wheels-macos/*.whl')
                         }
                     }
                 }
@@ -48,6 +74,7 @@ pipeline {
                                 pythonVersions: pythonVersionsList,
                                 artifactDir: 'wheels-windows'
                             )
+                            stash(name: 'wheels-windows', includes: 'wheels-windows/*.whl')
                         }
                     }
                 }
@@ -57,17 +84,20 @@ pipeline {
         stage('Publish') {
             agent { label 'linux-spsdk' }
             steps {
-                // Copy wheels from all platforms to a single directory
+                // Pull wheels built on each platform agent into this agent's workspace.
+                // Using stash/unstash instead of archiveArtifacts+copyArtifacts because
+                // these are parallel stages of the SAME build, not separate jobs/builds -
+                // copyArtifacts additionally requires Item.READ permission on "itself"
+                // for the user/principal the build runs as, which fails for anonymous-
+                // triggered (webhook) builds with "Unable to find project for artifact copy".
                 sh 'mkdir -p all-wheels'
-                copyArtifacts(
-                    projectName: env.JOB_NAME,
-                    selector: specific(env.BUILD_NUMBER),
-                    filter: 'wheels-*/**.whl',
-                    target: 'all-wheels'
-                )
+                unstash 'wheels-linux'
+                unstash 'wheels-macos'
+                unstash 'wheels-windows'
+                sh 'mv wheels-linux/*.whl wheels-macos/*.whl wheels-windows/*.whl all-wheels/'
                 withVenv(
                     "uv pip install build twine",
-                    "twine upload --verbose --repository nexus all-wheels/**/*.whl"
+                    "twine upload --verbose --repository nexus all-wheels/*.whl"
                 )
             }
         }

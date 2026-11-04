@@ -3,6 +3,7 @@
 venv/
 /dist
 /include
+/bindings
 /.venv
 
 *.exe

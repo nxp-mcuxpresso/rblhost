@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 pub use mboot::{
-    GetPropertyResponse, KeyProvisioningResponse, McuBoot, ReadMemoryResponse, memory, packets,
+    EFUSE_LOCK_FLAG, GetPropertyResponse, KeyProvisioningResponse, McuBoot, ReadMemoryResponse, memory, packets,
     protocols::{self, CommunicationError},
     tags,
 };

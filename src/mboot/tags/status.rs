@@ -24,7 +24,7 @@ use pyo3_stub_gen::derive::gen_stub_pyclass_enum;
 #[derive(derive_more::Display, derive_more::TryFrom, Debug, Clone, Copy, strum::EnumIs, PartialEq, Eq)]
 #[try_from(repr)]
 #[cfg_attr(feature = "python", gen_stub_pyclass_enum)]
-#[cfg_attr(feature = "python", pyclass(eq, eq_int))]
+#[cfg_attr(feature = "python", pyclass(eq, eq_int, from_py_object))]
 pub enum StatusCode {
     /// Command executed successfully
     Success = 0,

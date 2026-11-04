@@ -203,4 +203,18 @@ mod tests {
             ]
         );
     }
+
+    #[test]
+    fn test_command_flash_program_once_8_bytes() {
+        // count == 8 must send the full 64-bit `data` as two little-endian words, matching
+        // blhost's `data.to_bytes(byte_count, byteorder="little")` behavior.
+        let cmd = get_command(CommandTag::FlashProgramOnce {
+            index: 0x51,
+            count: 8,
+            data: 0x1122_3344_5566_7788,
+        });
+
+        let (params, _) = cmd.tag.to_params();
+        assert_eq!(params, vec![0x51, 8, 0x5566_7788, 0x1122_3344]);
+    }
 }

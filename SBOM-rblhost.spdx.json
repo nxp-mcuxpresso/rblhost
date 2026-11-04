@@ -2,32 +2,20 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-09-15T13:17:43Z",
+    "created": "2026-10-30T12:53:42Z",
     "creators": [
       "Organization: NXP"
     ],
-    "licenseListVersion": "3.20"
+    "licenseListVersion": "3.28"
   },
-  "name": "rblhost-0.2.0",
+  "name": "rblhost-0.3.0",
   "dataLicense": "CC0-1.0",
-  "hasExtractedLicensingInfos": [
-    {
-      "licenseId": "LicenseRef-7ab8b707-f9ca-42db-a607-4179fa6102e8",
-      "extractedText": "UNICODE LICENSE V3\n==================\n\n\nCOPYRIGHT AND PERMISSION NOTICE\n\nCopyright © 1991-2023 Unicode, Inc.\nNOTICE TO USER: Carefully read the following legal agreement. BY DOWNLOADING,\nINSTALLING, COPYING OR OTHERWISE USING DATA FILES, AND/OR SOFTWARE, YOU\nUNEQUIVOCALLY ACCEPT, AND AGREE TO BE BOUND BY, ALL OF THE TERMS AND CONDITIONS\nOF THIS AGREEMENT. IF YOU DO NOT AGREE, DO NOT DOWNLOAD, INSTALL, COPY,\nDISTRIBUTE OR USE THE DATA FILES OR SOFTWARE.\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\ndata files and any associated documentation (the \"Data Files\") or software and\nany associated documentation (the \"Software\") to deal in the Data Files or\nSoftware without restriction, including without limitation the rights to use,\ncopy, modify, merge, publish, distribute, and/or sell copies of the Data Files or\nSoftware, and to permit persons to whom the Data Files or Software are furnished\nto do so, provided that either (a) this copyright and permission notice appear\nwith all copies of the Data Files or Software, or (b) this copyright and\npermission notice appear in associated Documentation.\n\nTHE DATA FILES AND SOFTWARE ARE PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF THIRD\nPARTY RIGHTS.\n\nIN NO EVENT SHALL THE COPYRIGHT HOLDER OR HOLDERS INCLUDED IN THIS NOTICE BE\nLIABLE FOR ANY CLAIM, OR ANY SPECIAL INDIRECT OR CONSEQUENTIAL DAMAGES, OR ANY\nDAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN\nACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN\nCONNECTION WITH THE USE OR PERFORMANCE OF THE DATA FILES OR SOFTWARE.\n\nExcept as contained in this notice, the name of a copyright holder shall not be\nused in advertising or otherwise to promote the sale, use or other dealings in\nthese Data Files or Software without prior written authorization of the copyright\nholder.",
-      "name": "Unicode License v3"
-    },
-    {
-      "licenseId": "LicenseRef-c9bdcbe3-de95-46a0-9fd9-9be02f4ef8c4",
-      "extractedText": "This license may contain an exception relative to the applicability of certain\nprovisions of the license and this exception may alter your specific obligations\nwhen using it. The exact nature of the exception was not specified at the time of\ndiscovery. You are advised to examine the project's license directly in order to\ndetermine if it applies to your usage.\n\n\n\nApache License\nVersion 2.0, January 2004\n=========================\n\n\nhttp://www.apache.org/licenses/\n\nTERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION\n\n1. Definitions.\n\n\"License\" shall mean the terms and conditions for use, reproduction, and\ndistribution as defined by Sections 1 through 9 of this document.\n\n\"Licensor\" shall mean the copyright owner or entity authorized by the copyright\nowner that is granting the License.\n\n\"Legal Entity\" shall mean the union of the acting entity and all other entities\nthat control, are controlled by, or are under common control with that entity.\nFor the purposes of this definition, \"control\" means (i) the power, direct or\nindirect, to cause the direction or management of such entity, whether by\ncontract or otherwise, or (ii) ownership of fifty percent (50%) or more of the\noutstanding shares, or (iii) beneficial ownership of such entity.\n\n\"You\" (or \"Your\") shall mean an individual or Legal Entity exercising permissions\ngranted by this License.\n\n\"Source\" form shall mean the preferred form for making modifications, including\nbut not limited to software source code, documentation source, and configuration\nfiles.\n\n\"Object\" form shall mean any form resulting from mechanical transformation or\ntranslation of a Source form, including but not limited to compiled object code,\ngenerated documentation, and conversions to other media types.\n\n\"Work\" shall mean the work of authorship, whether in Source or Object form, made\navailable under the License, as indicated by a copyright notice that is included\nin or attached to the work (an example is provided in the Appendix below).\n\n\"Derivative Works\" shall mean any work, whether in Source or Object form, that is\nbased on (or derived from) the Work and for which the editorial revisions,\nannotations, elaborations, or other modifications represent, as a whole, an\noriginal work of authorship. For the purposes of this License, Derivative Works\nshall not include works that remain separable from, or merely link (or bind by\nname) to the interfaces of, the Work and Derivative Works thereof.\n\n\"Contribution\" shall mean any work of authorship, including the original version\nof the Work and any modifications or additions to that Work or Derivative Works\nthereof, that is intentionally submitted to Licensor for inclusion in the Work by\nthe copyright owner or by an individual or Legal Entity authorized to submit on\nbehalf of the copyright owner. For the purposes of this definition, \"submitted\"\nmeans any form of electronic, verbal, or written communication sent to the\nLicensor or its representatives, including but not limited to communication on\nelectronic mailing lists, source code control systems, and issue tracking systems\nthat are managed by, or on behalf of, the Licensor for the purpose of discussing\nand improving the Work, but excluding communication that is conspicuously marked\nor otherwise designated in writing by the copyright owner as \"Not a\nContribution.\"\n\n\"Contributor\" shall mean Licensor and any individual or Legal Entity on behalf of\nwhom a Contribution has been received by Licensor and subsequently incorporated\nwithin the Work.\n\n2. Grant of Copyright License. Subject to the terms and conditions of this\nLicense, each Contributor hereby grants to You a perpetual, worldwide,\nnon-exclusive, no-charge, royalty-free, irrevocable copyright license to\nreproduce, prepare Derivative Works of, publicly display, publicly perform,\nsublicense, and distribute the Work and such Derivative Works in Source or Object\nform.\n\n3. Grant of Patent License. Subject to the terms and conditions of this License,\neach Contributor hereby grants to You a perpetual, worldwide, non-exclusive,\nno-charge, royalty-free, irrevocable (except as stated in this section) patent\nlicense to make, have made, use, offer to sell, sell, import, and otherwise\ntransfer the Work, where such license applies only to those patent claims\nlicensable by such Contributor that are necessarily infringed by their\nContribution(s) alone or by combination of their Contribution(s) with the Work to\nwhich such Contribution(s) was submitted. If You institute patent litigation\nagainst any entity (including a cross-claim or counterclaim in a lawsuit)\nalleging that the Work or a Contribution incorporated within the Work constitutes\ndirect or contributory patent infringement, then any patent licenses granted to\nYou under this License for that Work shall terminate as of the date such\nlitigation is filed.\n\n4. Redistribution. You may reproduce and distribute copies of the Work or\nDerivative Works thereof in any medium, with or without modifications, and in\nSource or Object form, provided that You meet the following conditions:\n\n  a. You must give any other recipients of the Work or Derivative Works a copy of\n    this License; and\n\n  b. You must cause any modified files to carry prominent notices stating that\n    You changed the files; and\n\n  c. You must retain, in the Source form of any Derivative Works that You\n    distribute, all copyright, patent, trademark, and attribution notices from\n    the Source form of the Work, excluding those notices that do not pertain to\n    any part of the Derivative Works; and\n\n  d. If the Work includes a \"NOTICE\" text file as part of its distribution, then\n    any Derivative Works that You distribute must include a readable copy of the\n    attribution notices contained within such NOTICE file, excluding those\n    notices that do not pertain to any part of the Derivative Works, in at least\n    one of the following places: within a NOTICE text file distributed as part of\n    the Derivative Works; within the Source form or documentation, if provided\n    along with the Derivative Works; or, within a display generated by the\n    Derivative Works, if and wherever such third-party notices normally appear.\n    The contents of the NOTICE file are for informational purposes only and do\n    not modify the License. You may add Your own attribution notices within\n    Derivative Works that You distribute, alongside or as an addendum to the\n    NOTICE text from the Work, provided that such additional attribution notices\n    cannot be construed as modifying the License.\n\nYou may add Your own copyright statement to Your modifications and may provide\nadditional or different license terms and conditions for use, reproduction, or\ndistribution of Your modifications, or for any such Derivative Works as a whole,\nprovided Your use, reproduction, and distribution of the Work otherwise complies\nwith the conditions stated in this License.\n\n5. Submission of Contributions. Unless You explicitly state otherwise, any\nContribution intentionally submitted for inclusion in the Work by You to the\nLicensor shall be under the terms and conditions of this License, without any\nadditional terms or conditions. Notwithstanding the above, nothing herein shall\nsupersede or modify the terms of any separate license agreement you may have\nexecuted with Licensor regarding such Contributions.\n\n6. Trademarks. This License does not grant permission to use the trade names,\ntrademarks, service marks, or product names of the Licensor, except as required\nfor reasonable and customary use in describing the origin of the Work and\nreproducing the content of the NOTICE file.\n\n7. Disclaimer of Warranty. Unless required by applicable law or agreed to in\nwriting, Licensor provides the Work (and each Contributor provides its\nContributions) on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,\neither express or implied, including, without limitation, any warranties or\nconditions of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A\nPARTICULAR PURPOSE. You are solely responsible for determining the\nappropriateness of using or redistributing the Work and assume any risks\nassociated with Your exercise of permissions under this License.\n\n8. Limitation of Liability. In no event and under no legal theory, whether in\ntort (including negligence), contract, or otherwise, unless required by\napplicable law (such as deliberate and grossly negligent acts) or agreed to in\nwriting, shall any Contributor be liable to You for damages, including any\ndirect, indirect, special, incidental, or consequential damages of any character\narising as a result of this License or out of the use or inability to use the\nWork (including but not limited to damages for loss of goodwill, work stoppage,\ncomputer failure or malfunction, or any and all other commercial damages or\nlosses), even if such Contributor has been advised of the possibility of such\ndamages.\n\n9. Accepting Warranty or Additional Liability. While redistributing the Work or\nDerivative Works thereof, You may choose to offer, and charge a fee for,\nacceptance of support, warranty, indemnity, or other liability obligations and/or\nrights consistent with this License. However, in accepting such obligations, You\nmay act only on Your own behalf and on Your sole responsibility, not on behalf of\nany other Contributor, and only if You agree to indemnify, defend, and hold each\nContributor harmless for any liability incurred by, or claims asserted against,\nsuch Contributor by reason of your accepting any such warranty or additional\nliability.\n\nEND OF TERMS AND CONDITIONS\n\nAPPENDIX: How to apply the Apache License to your work\n\nTo apply the Apache License to your work, attach the following boilerplate\nnotice, with the fields enclosed by brackets \"[]\" replaced with your own\nidentifying information. (Don't include the brackets!) The text should be\nenclosed in the appropriate comment syntax for the file format. We also recommend\nthat a file or class name and description of purpose be included on the same\n\"printed page\" as the copyright notice for easier identification within\nthird-party archives.\n\n  Copyright [yyyy] [name of copyright owner] Licensed under the Apache License,\n  Version 2.0 (the \"License\"); you may not use this file except in compliance\n  with the License. You may obtain a copy of the License at\n  http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law\n  or agreed to in writing, software distributed under the License is\n  distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\n  KIND, either express or implied. See the License for the specific language\n  governing permissions and limitations under the License.",
-      "name": "Apache License 2.0 with Exceptions"
-    }
-  ],
-  "documentNamespace": "https://nxp.com/spdx/532875d4-6b4e-4c76-a895-20ee4484599e",
+  "documentNamespace": "https://nxp.com/spdx/50e1b191-d3b5-404d-bc02-e89a9d6ef794",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
+      "SPDXID": "SPDXRef-package-50e1b191-d3b5-404d-bc02-e89a9d6ef794",
       "name": "rblhost",
-      "versionInfo": "0.2.0",
+      "versionInfo": "0.3.0",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
       "downloadLocation": "https://github.com/nxp-mcuxpresso/rblhost",
@@ -37,36 +25,38 @@
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-0fa69258-6b12-48a9-be46-8d6d36072ab4",
+      "SPDXID": "SPDXRef-package-35403bbc-dfb4-4095-80d3-ad72869a4ca3",
       "name": "anyhow",
-      "versionInfo": "1.0.99",
-      "licenseConcluded": "(Apache-2.0 OR MIT)",
+      "versionInfo": "1.0.104",
+      "licenseConcluded": "MIT",
       "licenseDeclared": "(Apache-2.0 OR MIT)",
-      "downloadLocation": "https://crates.io/crates/anyhow/1.0.99",
+      "licenseComments": "License MIT has been selected",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: crates",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/anyhow@1.0.99",
-          "referenceType": "purl"
+          "referenceCategory": "OTHER",
+          "referenceLocator": "f5a13f2c-0fd8-4ca4-b0b9-3ce4f3cd933a",
+          "referenceType": "BlackDuck-ComponentOrigin"
         },
         {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "72b01c73-cb69-472f-9a46-c669b014231e",
-          "referenceType": "BlackDuck-ComponentOrigin"
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/anyhow@1.0.104",
+          "referenceType": "purl"
         }
       ],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-d7d67673-8b34-4ae4-854d-754a41b002ca",
+      "SPDXID": "SPDXRef-package-444c12a0-8c33-4ef0-90d5-0fcc7f371f5d",
       "name": "clap-rs/clap",
       "versionInfo": "4.5.47",
-      "licenseConcluded": "(Apache-2.0 OR MIT)",
+      "licenseConcluded": "MIT",
       "licenseDeclared": "(Apache-2.0 OR MIT)",
+      "licenseComments": "License MIT has been selected",
       "homepage": "https://github.com/clap-rs/clap",
-      "downloadLocation": "https://crates.io/crates/clap/4.5.47",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: crates",
       "supplier": "NOASSERTION",
       "externalRefs": [
@@ -87,45 +77,22 @@
       "SPDXID": "SPDXRef-package-5982dda6-d44d-4d2f-b019-fb17d2449bb2",
       "name": "color-print",
       "versionInfo": "0.3.7",
-      "licenseConcluded": "(Apache-2.0 OR MIT)",
+      "licenseConcluded": "MIT",
       "licenseDeclared": "(Apache-2.0 OR MIT)",
+      "licenseComments": "License MIT has been selected",
       "homepage": "https://crates.io/crates/color-print",
-      "downloadLocation": "https://crates.io/crates/color-print/0.3.7",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: crates",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/color-print@0.3.7",
-          "referenceType": "purl"
-        },
-        {
           "referenceCategory": "OTHER",
           "referenceLocator": "f148a6d0-55c0-425c-8dbd-c9afa7dca232",
           "referenceType": "BlackDuck-ComponentOrigin"
-        }
-      ],
-      "filesAnalyzed": false
-    },
-    {
-      "SPDXID": "SPDXRef-package-e693dfc9-9139-4cdd-a5b4-9825d9fcf6cd",
-      "name": "console-rs/console",
-      "versionInfo": "0.16.1",
-      "licenseConcluded": "MIT",
-      "licenseDeclared": "MIT",
-      "homepage": "https://github.com/mitsuhiko/console",
-      "downloadLocation": "NOASSERTION",
-      "originator": "Organization: console-rs",
-      "supplier": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "016bdcaa-9a8d-49c3-a7d6-4f7ad109df03",
-          "referenceType": "BlackDuck-ComponentOrigin"
         },
         {
           "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:github/console-rs/console@0.16.1",
+          "referenceLocator": "pkg:cargo/color-print@0.3.7",
           "referenceType": "purl"
         }
       ],
@@ -135,21 +102,22 @@
       "SPDXID": "SPDXRef-package-67f1d7e0-511d-416b-b77e-03fb4724bbfd",
       "name": "crc-rs",
       "versionInfo": "3.3.0",
-      "licenseConcluded": "(Apache-2.0 OR MIT)",
+      "licenseConcluded": "MIT",
       "licenseDeclared": "(Apache-2.0 OR MIT)",
-      "downloadLocation": "https://crates.io/crates/crc/3.3.0",
+      "licenseComments": "License MIT has been selected",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: crates",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/crc@3.3.0",
-          "referenceType": "purl"
-        },
-        {
           "referenceCategory": "OTHER",
           "referenceLocator": "4f2ebe42-1045-4c9d-9966-efee55481cd8",
           "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/crc@3.3.0",
+          "referenceType": "purl"
         }
       ],
       "filesAnalyzed": false
@@ -158,10 +126,10 @@
       "SPDXID": "SPDXRef-package-e6c51e58-0bab-4e10-b266-aeaa649d76fb",
       "name": "env_logger",
       "versionInfo": "0.11.8",
-      "licenseConcluded": "(Apache-2.0 OR MIT)",
+      "licenseConcluded": "MIT",
       "licenseDeclared": "(Apache-2.0 OR MIT)",
-      "homepage": "https://crates.io/crates/env_logger",
-      "downloadLocation": "https://crates.io/crates/env_logger/0.11.8",
+      "licenseComments": "License MIT has been selected",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: crates",
       "supplier": "NOASSERTION",
       "externalRefs": [
@@ -179,73 +147,24 @@
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-568a5cc2-54d9-48f7-9c1d-25349937cbdc",
-      "name": "fastrand",
-      "versionInfo": "2.3.0",
-      "licenseConcluded": "(Apache-2.0 OR MIT)",
-      "licenseDeclared": "(Apache-2.0 OR MIT)",
-      "homepage": "https://github.com/stjepang/fastrand",
-      "downloadLocation": "https://crates.io/crates/fastrand/2.3.0",
-      "originator": "Organization: crates",
-      "supplier": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "bb241d65-25a9-4778-b9c5-d0ecba67c67c",
-          "referenceType": "BlackDuck-ComponentOrigin"
-        },
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/fastrand@2.3.0",
-          "referenceType": "purl"
-        }
-      ],
-      "filesAnalyzed": false
-    },
-    {
-      "SPDXID": "SPDXRef-package-72e01466-7801-4c0d-91fe-cfa6714748be",
-      "name": "getrandom",
-      "versionInfo": "0.3.3",
-      "licenseConcluded": "(Apache-2.0 OR MIT)",
-      "licenseDeclared": "(Apache-2.0 OR MIT)",
-      "homepage": "https://crates.io/crates/getrandom",
-      "downloadLocation": "https://crates.io/crates/getrandom/0.3.3",
-      "originator": "Organization: crates",
-      "supplier": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/getrandom@0.3.3",
-          "referenceType": "purl"
-        },
-        {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "639bb50c-f9a4-4c14-8d56-62c1e2398790",
-          "referenceType": "BlackDuck-ComponentOrigin"
-        }
-      ],
-      "filesAnalyzed": false
-    },
-    {
       "SPDXID": "SPDXRef-package-24f9916b-be0a-4e7b-8b02-247c6cf4610d",
       "name": "hidapi",
       "versionInfo": "2.6.3",
       "licenseConcluded": "MIT",
       "licenseDeclared": "MIT",
-      "homepage": "https://crates.io/crates/hidapi",
-      "downloadLocation": "https://crates.io/crates/hidapi/2.6.3",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: crates",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/hidapi@2.6.3",
-          "referenceType": "purl"
-        },
-        {
           "referenceCategory": "OTHER",
           "referenceLocator": "38779c7e-bd20-49a5-a50d-94b99e62d049",
           "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/hidapi@2.6.3",
+          "referenceType": "purl"
         }
       ],
       "filesAnalyzed": false
@@ -257,104 +176,43 @@
       "licenseConcluded": "MIT",
       "licenseDeclared": "MIT",
       "homepage": "http://github.com/JelteF/derive_more/",
-      "downloadLocation": "https://crates.io/crates/derive_more/2.0.1",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: crates",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/derive_more-impl@2.0.1",
-          "referenceType": "purl"
+          "referenceCategory": "OTHER",
+          "referenceLocator": "8ecda93e-b7ea-46fe-894e-bb6b20ecba65",
+          "referenceType": "BlackDuck-ComponentOrigin"
         },
         {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "e001e199-92d2-48fc-bde4-9ae2952d681a",
-          "referenceType": "BlackDuck-ComponentOrigin"
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/derive_more@2.0.1",
+          "referenceType": "purl"
         }
       ],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-85d022c0-2362-4ce3-a8f3-26a3cd35d179",
-      "name": "linux-raw-sys",
-      "versionInfo": "0.9.4",
-      "licenseConcluded": "(LicenseRef-c9bdcbe3-de95-46a0-9fd9-9be02f4ef8c4 OR Apache-2.0 OR MIT)",
-      "licenseDeclared": "(LicenseRef-c9bdcbe3-de95-46a0-9fd9-9be02f4ef8c4 OR Apache-2.0 OR MIT)",
-      "homepage": "https://crates.io/crates/linux-raw-sys",
-      "downloadLocation": "https://crates.io/crates/linux-raw-sys/0.9.4",
-      "originator": "Organization: crates",
-      "supplier": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/linux-raw-sys@0.9.4",
-          "referenceType": "purl"
-        },
-        {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "25ca0dfc-30ca-4d44-bdf8-e22993928bde",
-          "referenceType": "BlackDuck-ComponentOrigin"
-        }
-      ],
-      "filesAnalyzed": false
-    },
-    {
-      "SPDXID": "SPDXRef-package-31a61f71-6c97-477c-a773-33e029de9e9c",
+      "SPDXID": "SPDXRef-package-843aaff6-fd24-4dfb-8f88-70effce5d6aa",
       "name": "log",
-      "versionInfo": "0.4.28",
-      "licenseConcluded": "(Apache-2.0 OR MIT)",
+      "versionInfo": "0.4.34",
+      "licenseConcluded": "MIT",
       "licenseDeclared": "(Apache-2.0 OR MIT)",
-      "downloadLocation": "https://crates.io/crates/log/0.4.28",
+      "licenseComments": "License MIT has been selected",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: crates",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/log@0.4.28",
-          "referenceType": "purl"
-        },
-        {
           "referenceCategory": "OTHER",
-          "referenceLocator": "3cadea6c-a7c7-434c-9a70-6cc8b1111f7d",
-          "referenceType": "BlackDuck-ComponentOrigin"
-        }
-      ],
-      "filesAnalyzed": false
-    },
-    {
-      "SPDXID": "SPDXRef-package-b0fdfb26-5bef-4445-aef0-1f2a4ba64cfd",
-      "name": "matklad/once_cell",
-      "versionInfo": "1.21.3",
-      "licenseConcluded": "(Apache-2.0 OR MIT)",
-      "licenseDeclared": "(Apache-2.0 OR MIT)",
-      "downloadLocation": "https://crates.io/crates/once_cell/1.21.3",
-      "originator": "Organization: crates",
-      "supplier": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "SECURITY",
-          "referenceLocator": "cpe:2.3:a:once_cell_project:once_cell:1.21.3:*:*:*:*:*:*:*",
-          "referenceType": "cpe23Type"
-        },
-        {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "1f688299-eb37-4825-9114-47efc8e3e465",
+          "referenceLocator": "ec19582d-8a3d-44f3-a24f-ef135a796409",
           "referenceType": "BlackDuck-ComponentOrigin"
         },
         {
-          "referenceCategory": "SECURITY",
-          "referenceLocator": "cpe:2.3:a:matklad:once_cell:1.21.3:*:*:*:*:*:*:*",
-          "referenceType": "cpe23Type"
-        },
-        {
           "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/once_cell@1.21.3",
+          "referenceLocator": "pkg:cargo/log@0.4.34",
           "referenceType": "purl"
-        },
-        {
-          "referenceCategory": "SECURITY",
-          "referenceLocator": "cpe:2.3:a:crates_package:once_cell:1.21.3:*:*:*:*:*:*:*",
-          "referenceType": "cpe23Type"
         }
       ],
       "filesAnalyzed": false
@@ -365,19 +223,44 @@
       "versionInfo": "0.18.0",
       "licenseConcluded": "MIT",
       "licenseDeclared": "MIT",
-      "downloadLocation": "https://crates.io/crates/indicatif/0.18.0",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: crates",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/indicatif@0.18.0",
-          "referenceType": "purl"
-        },
-        {
           "referenceCategory": "OTHER",
           "referenceLocator": "6a8207f0-d7f7-4500-9065-bea3da5bdfd5",
           "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/indicatif@0.18.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-17af2065-1151-4ff4-8168-e425dbbf10b8",
+      "name": "num-traits",
+      "versionInfo": "0.2.19",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "(Apache-2.0 OR MIT)",
+      "licenseComments": "License MIT has been selected",
+      "homepage": "https://github.com/rust-num/num-traits",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: crates",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "5468e35d-063b-4c18-bb2a-a6db118c9d57",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/num-traits@0.2.19",
+          "referenceType": "purl"
         }
       ],
       "filesAnalyzed": false
@@ -389,76 +272,18 @@
       "licenseConcluded": "MIT",
       "licenseDeclared": "MIT",
       "homepage": "https://crates.io/crates/number_prefix",
-      "downloadLocation": "https://crates.io/crates/number_prefix/0.4.0",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: crates",
       "supplier": "NOASSERTION",
       "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/number_prefix@0.4.0",
-          "referenceType": "purl"
-        },
         {
           "referenceCategory": "OTHER",
           "referenceLocator": "b463dd5e-2fb4-408c-9989-67099d97843d",
           "referenceType": "BlackDuck-ComponentOrigin"
-        }
-      ],
-      "filesAnalyzed": false
-    },
-    {
-      "SPDXID": "SPDXRef-package-17af2065-1151-4ff4-8168-e425dbbf10b8",
-      "name": "num-traits",
-      "versionInfo": "0.2.19",
-      "licenseConcluded": "(Apache-2.0 OR MIT)",
-      "licenseDeclared": "(Apache-2.0 OR MIT)",
-      "homepage": "https://github.com/rust-num/num-traits",
-      "downloadLocation": "https://crates.io/crates/num-traits/0.2.19",
-      "originator": "Organization: crates",
-      "supplier": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/num-traits@0.2.19",
-          "referenceType": "purl"
-        },
-        {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "5468e35d-063b-4c18-bb2a-a6db118c9d57",
-          "referenceType": "BlackDuck-ComponentOrigin"
-        }
-      ],
-      "filesAnalyzed": false
-    },
-    {
-      "SPDXID": "SPDXRef-package-b36feecd-3448-427b-b9ba-0d949d051353",
-      "name": "rustix",
-      "versionInfo": "1.0.8",
-      "licenseConcluded": "(LicenseRef-c9bdcbe3-de95-46a0-9fd9-9be02f4ef8c4 OR Apache-2.0 OR MIT)",
-      "licenseDeclared": "(LicenseRef-c9bdcbe3-de95-46a0-9fd9-9be02f4ef8c4 OR Apache-2.0 OR MIT)",
-      "homepage": "https://github.com/bytecodealliance/rustix",
-      "downloadLocation": "https://crates.io/crates/rustix/1.0.8",
-      "originator": "Organization: crates",
-      "supplier": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "SECURITY",
-          "referenceLocator": "cpe:2.3:a:crates_package:rustix:1.0.8:*:*:*:*:*:*:*",
-          "referenceType": "cpe23Type"
-        },
-        {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "9f53515a-c8a1-4f75-83da-a2b46a8f9d76",
-          "referenceType": "BlackDuck-ComponentOrigin"
-        },
-        {
-          "referenceCategory": "SECURITY",
-          "referenceLocator": "cpe:2.3:a:bytecodealliance:rustix:1.0.8:*:*:*:*:*:*:*",
-          "referenceType": "cpe23Type"
         },
         {
           "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/rustix@1.0.8",
+          "referenceLocator": "pkg:cargo/number_prefix@0.4.0",
           "referenceType": "purl"
         }
       ],
@@ -468,22 +293,23 @@
       "SPDXID": "SPDXRef-package-0bc96fa5-79ec-473b-a28f-fc89b28f79af",
       "name": "rust-lang/libc",
       "versionInfo": "0.2.175",
-      "licenseConcluded": "(Apache-2.0 OR MIT)",
+      "licenseConcluded": "MIT",
       "licenseDeclared": "(Apache-2.0 OR MIT)",
+      "licenseComments": "License MIT has been selected",
       "homepage": "https://github.com/rust-lang/libc",
-      "downloadLocation": "https://crates.io/crates/libc/0.2.175",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: crates",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/libc@0.2.175",
-          "referenceType": "purl"
-        },
-        {
           "referenceCategory": "OTHER",
           "referenceLocator": "e3681a06-48a5-4fa2-9d7c-733e9015ff72",
           "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/libc@0.2.175",
+          "referenceType": "purl"
         }
       ],
       "filesAnalyzed": false
@@ -507,19 +333,53 @@
       "versionInfo": "4.7.3",
       "licenseConcluded": "MPL-2.0",
       "licenseDeclared": "MPL-2.0",
-      "downloadLocation": "https://crates.io/crates/serialport/4.7.3",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: crates",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/serialport@4.7.3",
-          "referenceType": "purl"
-        },
-        {
           "referenceCategory": "OTHER",
           "referenceLocator": "3d3cd8d3-59b2-40ba-9b98-ea661360bd99",
           "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/serialport@4.7.3",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-04d7b5b8-0668-4ac2-a4cd-4ef913bead2d",
+      "name": "shlex",
+      "versionInfo": "1.3.0",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "(Apache-2.0 OR MIT)",
+      "licenseComments": "License MIT has been selected",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: crates",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:comex:shlex:1.3.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:crates_package:shlex:1.3.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "eae84029-9bbf-4714-bb1d-ee19f2e37b85",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/shlex@1.3.0",
+          "referenceType": "purl"
         }
       ],
       "filesAnalyzed": false
@@ -528,22 +388,23 @@
       "SPDXID": "SPDXRef-package-9413062d-103b-4d04-ba78-91680fece33c",
       "name": "srec-rs",
       "versionInfo": "0.1.4",
-      "licenseConcluded": "(Apache-2.0 OR MIT)",
+      "licenseConcluded": "MIT",
       "licenseDeclared": "(Apache-2.0 OR MIT)",
+      "licenseComments": "License MIT has been selected",
       "homepage": "https://crates.io/crates/srec-rs",
-      "downloadLocation": "https://crates.io/crates/srec-rs/0.1.4",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: crates",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/srec-rs@0.1.4",
-          "referenceType": "purl"
-        },
-        {
           "referenceCategory": "OTHER",
           "referenceLocator": "2faf7159-5483-4238-b747-84b27c68aa70",
           "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/srec-rs@0.1.4",
+          "referenceType": "purl"
         }
       ],
       "filesAnalyzed": false
@@ -551,7 +412,7 @@
     {
       "SPDXID": "SPDXRef-package-0b04d313-7848-4f81-9ed7-a1812e42e235",
       "name": "Stebalien/tempfile",
-      "versionInfo": "v3.22.0",
+      "versionInfo": "3.22.0",
       "licenseConcluded": "Apache-2.0",
       "licenseDeclared": "Apache-2.0",
       "homepage": "http://stebalien.com/projects/tempfile-rs",
@@ -566,7 +427,7 @@
         },
         {
           "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:github/Stebalien/tempfile@v3.22.0",
+          "referenceLocator": "pkg:github/stebalien/tempfile@v3.22.0",
           "referenceType": "purl"
         }
       ],
@@ -579,19 +440,19 @@
       "licenseConcluded": "MIT",
       "licenseDeclared": "MIT",
       "homepage": "https://crates.io/crates/strum",
-      "downloadLocation": "https://crates.io/crates/strum/0.27.2",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: crates",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/strum_macros@0.27.2",
-          "referenceType": "purl"
+          "referenceCategory": "OTHER",
+          "referenceLocator": "3be085d6-269e-49cf-98e0-a972b11cdff0",
+          "referenceType": "BlackDuck-ComponentOrigin"
         },
         {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "49cc915c-2ce9-4667-9171-b6a00a008ce7",
-          "referenceType": "BlackDuck-ComponentOrigin"
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/strum@0.27.2",
+          "referenceType": "purl"
         }
       ],
       "filesAnalyzed": false
@@ -600,9 +461,10 @@
       "SPDXID": "SPDXRef-package-d646ce19-9b1e-4d52-bb55-3c3d571266f0",
       "name": "thiserror",
       "versionInfo": "2.0.16",
-      "licenseConcluded": "(Apache-2.0 OR MIT)",
+      "licenseConcluded": "MIT",
       "licenseDeclared": "(Apache-2.0 OR MIT)",
-      "downloadLocation": "https://crates.io/crates/thiserror/2.0.16",
+      "licenseComments": "License MIT has been selected",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: crates",
       "supplier": "NOASSERTION",
       "externalRefs": [
@@ -624,127 +486,102 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e"
+      "relatedSpdxElement": "SPDXRef-package-50e1b191-d3b5-404d-bc02-e89a9d6ef794"
     },
     {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
+      "spdxElementId": "SPDXRef-package-50e1b191-d3b5-404d-bc02-e89a9d6ef794",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-0fa69258-6b12-48a9-be46-8d6d36072ab4"
+      "relatedSpdxElement": "SPDXRef-package-04d7b5b8-0668-4ac2-a4cd-4ef913bead2d"
     },
     {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-b0fdfb26-5bef-4445-aef0-1f2a4ba64cfd"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-b36feecd-3448-427b-b9ba-0d949d051353"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-9413062d-103b-4d04-ba78-91680fece33c"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-e6c51e58-0bab-4e10-b266-aeaa649d76fb"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-24f9916b-be0a-4e7b-8b02-247c6cf4610d"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-d8b46aa7-c0f9-4b63-bb8b-2fdd2a92c17d"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-d646ce19-9b1e-4d52-bb55-3c3d571266f0"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-e693dfc9-9139-4cdd-a5b4-9825d9fcf6cd"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
+      "spdxElementId": "SPDXRef-package-50e1b191-d3b5-404d-bc02-e89a9d6ef794",
       "relationshipType": "DYNAMIC_LINK",
       "relatedSpdxElement": "SPDXRef-package-0b04d313-7848-4f81-9ed7-a1812e42e235"
     },
     {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-d7d67673-8b34-4ae4-854d-754a41b002ca"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-31a61f71-6c97-477c-a773-33e029de9e9c"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-8358f5b8-3e42-4657-9b83-88fbc16a66e7"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-bb000cea-a238-401d-83b2-db8ca97f7c2d"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-a9fa1dbd-d963-49c1-8627-20cfdb03a257"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
+      "spdxElementId": "SPDXRef-package-50e1b191-d3b5-404d-bc02-e89a9d6ef794",
       "relationshipType": "DYNAMIC_LINK",
       "relatedSpdxElement": "SPDXRef-package-0bc96fa5-79ec-473b-a28f-fc89b28f79af"
     },
     {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
+      "spdxElementId": "SPDXRef-package-50e1b191-d3b5-404d-bc02-e89a9d6ef794",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-85d022c0-2362-4ce3-a8f3-26a3cd35d179"
+      "relatedSpdxElement": "SPDXRef-package-17af2065-1151-4ff4-8168-e425dbbf10b8"
     },
     {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
+      "spdxElementId": "SPDXRef-package-50e1b191-d3b5-404d-bc02-e89a9d6ef794",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-67f1d7e0-511d-416b-b77e-03fb4724bbfd"
+      "relatedSpdxElement": "SPDXRef-package-24f9916b-be0a-4e7b-8b02-247c6cf4610d"
     },
     {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
+      "spdxElementId": "SPDXRef-package-50e1b191-d3b5-404d-bc02-e89a9d6ef794",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-5c16780e-be18-463e-ac1d-16d4020cbf16"
+      "relatedSpdxElement": "SPDXRef-package-35403bbc-dfb4-4095-80d3-ad72869a4ca3"
     },
     {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
+      "spdxElementId": "SPDXRef-package-50e1b191-d3b5-404d-bc02-e89a9d6ef794",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-b2198eab-7d17-4ff7-82f8-9b988d03fe62"
+      "relatedSpdxElement": "SPDXRef-package-444c12a0-8c33-4ef0-90d5-0fcc7f371f5d"
     },
     {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-568a5cc2-54d9-48f7-9c1d-25349937cbdc"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-72e01466-7801-4c0d-91fe-cfa6714748be"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
+      "spdxElementId": "SPDXRef-package-50e1b191-d3b5-404d-bc02-e89a9d6ef794",
       "relationshipType": "DYNAMIC_LINK",
       "relatedSpdxElement": "SPDXRef-package-5982dda6-d44d-4d2f-b019-fb17d2449bb2"
     },
     {
-      "spdxElementId": "SPDXRef-package-532875d4-6b4e-4c76-a895-20ee4484599e",
+      "spdxElementId": "SPDXRef-package-50e1b191-d3b5-404d-bc02-e89a9d6ef794",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-17af2065-1151-4ff4-8168-e425dbbf10b8"
+      "relatedSpdxElement": "SPDXRef-package-5c16780e-be18-463e-ac1d-16d4020cbf16"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-50e1b191-d3b5-404d-bc02-e89a9d6ef794",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-67f1d7e0-511d-416b-b77e-03fb4724bbfd"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-50e1b191-d3b5-404d-bc02-e89a9d6ef794",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-8358f5b8-3e42-4657-9b83-88fbc16a66e7"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-50e1b191-d3b5-404d-bc02-e89a9d6ef794",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-843aaff6-fd24-4dfb-8f88-70effce5d6aa"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-50e1b191-d3b5-404d-bc02-e89a9d6ef794",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-9413062d-103b-4d04-ba78-91680fece33c"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-50e1b191-d3b5-404d-bc02-e89a9d6ef794",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-a9fa1dbd-d963-49c1-8627-20cfdb03a257"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-50e1b191-d3b5-404d-bc02-e89a9d6ef794",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-b2198eab-7d17-4ff7-82f8-9b988d03fe62"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-50e1b191-d3b5-404d-bc02-e89a9d6ef794",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-bb000cea-a238-401d-83b2-db8ca97f7c2d"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-50e1b191-d3b5-404d-bc02-e89a9d6ef794",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-d646ce19-9b1e-4d52-bb55-3c3d571266f0"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-50e1b191-d3b5-404d-bc02-e89a9d6ef794",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-d8b46aa7-c0f9-4b63-bb8b-2fdd2a92c17d"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-50e1b191-d3b5-404d-bc02-e89a9d6ef794",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-e6c51e58-0bab-4e10-b266-aeaa649d76fb"
     }
   ]
 }

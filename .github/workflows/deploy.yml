@@ -23,10 +23,36 @@ jobs:
       - name: Run cargo test
         run: cargo test --all-features
 
+  # Extract release notes before anything is published
+  release-notes:
+    name: Extract release notes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Extract release notes from CHANGELOG.md
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          awk -v ver="$VERSION" '
+            index($0, "## [" ver "]") == 1 { found = 1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md | sed -e '/./,$!d' > release_notes.md
+          if ! grep -q '[^[:space:]]' release_notes.md; then
+            echo "::error::No changelog entry for version $VERSION found in CHANGELOG.md"
+            exit 1
+          fi
+
+      - name: Upload release notes
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: release-notes
+          path: release_notes.md
+
   # Publish to crates.io
   publish-crate:
     name: Publish to crates.io
-    needs: test
+    needs: [test, release-notes]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -47,7 +73,7 @@ jobs:
 
   build-wheels:
     name: Build wheels on ${{ matrix.os }}
-    needs: test
+    needs: [test, release-notes]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -73,7 +99,7 @@ jobs:
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
-          CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-*
+          CIBW_BUILD: cp310-* cp311-* cp312-* cp313-* cp314-* cp315-*
           CIBW_SKIP: "*-musllinux* *-win32" # Skip all musllinux builds and 32-bit Windows
           CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux2014_x86_64
           CIBW_MANYLINUX_I686_IMAGE: quay.io/pypa/manylinux2014_i686
@@ -119,3 +145,103 @@ jobs:
           packages-dir: dist
           skip-existing: true
           password: ${{ secrets.PYPI_API_TOKEN }}
+
+  build-executables:
+    name: Build executable ${{ matrix.asset_name }}
+    needs: [test, release-notes]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Oldest supported Ubuntu runner, so the binary runs on distros with older glibc
+          - os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            asset_name: rblhost-linux-x86_64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            asset_name: rblhost-windows-x86_64.exe
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            asset_name: rblhost-macos-x86_64
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            asset_name: rblhost-macos-arm64
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install system dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libudev-dev
+
+      - name: Build release binary (Unix)
+        if: runner.os != 'Windows'
+        run: cargo build --release --bin rblhost --target ${{ matrix.target }}
+
+      # Link the C runtime statically, so the executable does not require the VC++ redistributable
+      - name: Build release binary (Windows)
+        if: runner.os == 'Windows'
+        env:
+          RUSTFLAGS: -C target-feature=+crt-static
+        run: cargo build --release --bin rblhost --target ${{ matrix.target }}
+
+      - name: Prepare binary (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          cp target/${{ matrix.target }}/release/rblhost ${{ matrix.asset_name }}
+          chmod +x ${{ matrix.asset_name }}
+
+      - name: Prepare binary (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          copy target\${{ matrix.target }}\release\rblhost.exe ${{ matrix.asset_name }}
+
+      - name: Upload executable artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: executable-${{ matrix.asset_name }}
+          path: ${{ matrix.asset_name }}
+
+  # Publish GitHub release with changelog and executables
+  publish-github-release:
+    name: Publish GitHub release
+    needs: [release-notes, build-executables]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download release notes
+        uses: actions/download-artifact@v4
+        with:
+          name: release-notes
+
+      - name: Download all executables
+        uses: actions/download-artifact@v4
+        with:
+          pattern: executable-*
+          path: dist
+          merge-multiple: true
+
+      - name: Generate checksums
+        working-directory: dist
+        run: sha256sum rblhost-* > SHA256SUMS.txt
+
+      - name: Set release version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ env.VERSION }}
+          body_path: release_notes.md
+          files: |
+            dist/rblhost-*
+            dist/SHA256SUMS.txt

@@ -10,6 +10,7 @@ pipeline {
     
     options {
         timeout(time: 1, unit: 'HOURS')   // timeout on whole pipeline job
+        buildDiscarder(logRotator(daysToKeepStr: '30'))   // discard builds older than one month
     }
     
     stages {
@@ -88,6 +89,51 @@ pipeline {
             }
         }
         
+        stage('Build C Library') {
+            steps {
+                // Build the C API shared library and header separately from the
+                // default binary build, so a c_api build failure is clearly
+                // attributed to this stage. This must run AFTER "Build Python
+                // Package": that stage also compiles the shared "rblhost"/
+                // "mboot" crate (via setuptools-rust, without the c_api
+                // feature) into the same target/release/ directory, which
+                // would otherwise overwrite this c_api-enabled library with
+                // one missing the C API symbols (e.g. mboot_create).
+                sh '''
+                    cargo build --release --features c_api
+                '''
+            }
+        }
+
+        stage('Build C# Bindings') {
+            steps {
+                // csharp implies c_api, so this rebuilds the same C API shared
+                // library/symbols as the previous stage and additionally runs
+                // csbindgen to generate bindings/csharp/NativeMethods.g.cs.
+                // Kept as its own stage so a csbindgen-specific failure is
+                // clearly attributed here, separate from the C library build.
+                sh '''
+                    cargo build --release --features csharp
+                    test -f bindings/csharp/NativeMethods.g.cs
+                '''
+
+                // Compile the generated bindings + example to catch any
+                // csbindgen output that doesn't actually compile against the
+                // real C# compiler. .NET SDK is provisioned on all build
+                // agents via the spsdk_infra dotnet ansible role. The
+                // Jenkins agent's "sh" steps do not inherit /etc/profile or
+                // /etc/environment PATH updates (confirmed on macOS: cargo/
+                // rustc only resolve because they happen to be hardcoded
+                // into the node's fixed PATH), so dotnet must be added
+                // explicitly here, same as CARGO_HOME is added explicitly
+                // on Windows.
+                sh '''
+                    export PATH="$HOME/.dotnet:$PATH"
+                    dotnet build examples/csharp
+                '''
+            }
+        }
+        
         stage('Package') {
             steps {
                 // Archive the binary
@@ -97,6 +143,19 @@ pipeline {
                 // Archive Python wheel
                 sh 'mkdir -p artifacts/python'
                 sh 'cp dist/*.whl artifacts/python/'
+                
+                // Archive C library and header
+                sh 'mkdir -p artifacts/c/linux/include'
+                sh 'cp target/release/libmboot.so artifacts/c/linux/'
+                sh 'cp include/mboot.h artifacts/c/linux/include/'
+
+                // Archive C# bindings
+                sh 'mkdir -p artifacts/csharp'
+                sh 'cp bindings/csharp/NativeMethods.g.cs artifacts/csharp/'
+
+                // Verify the shared library is loadable (acceptance criteria: each
+                // platform package must be generated and loadable)
+                sh "python3 -c \"import ctypes; lib = ctypes.CDLL('artifacts/c/linux/libmboot.so'); assert hasattr(lib, 'mboot_create'); print('libmboot.so loaded OK')\""
                 
                 // Create archive
                 sh 'tar -czf blhost-${BUILD_NUMBER}.tar.gz artifacts'

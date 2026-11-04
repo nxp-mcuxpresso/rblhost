@@ -31,7 +31,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
+          # Oldest supported Ubuntu runner, so the binary runs on distros with older glibc
+          - os: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
             artifact_name: rblhost-linux-x86_64
             asset_name: rblhost-linux-x86_64
@@ -43,6 +44,10 @@ jobs:
             target: x86_64-apple-darwin
             artifact_name: rblhost-macos-x86_64
             asset_name: rblhost-macos-x86_64
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            artifact_name: rblhost-macos-arm64
+            asset_name: rblhost-macos-arm64
     
     steps:
       - uses: actions/checkout@v3
@@ -58,7 +63,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libudev-dev
 
-      - name: Build release binary
+      - name: Build release binary (Unix)
+        if: runner.os != 'Windows'
+        run: cargo build --release --target ${{ matrix.target }}
+
+      # Link the C runtime statically, so the executable does not require the VC++ redistributable
+      - name: Build release binary (Windows)
+        if: runner.os == 'Windows'
+        env:
+          RUSTFLAGS: -C target-feature=+crt-static
         run: cargo build --release --target ${{ matrix.target }}
 
       - name: Prepare binary (Unix)

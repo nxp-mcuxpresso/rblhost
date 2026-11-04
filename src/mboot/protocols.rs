@@ -51,6 +51,19 @@ pub enum CommunicationError {
     #[error("error while reading or writing a file")]
     FileError(#[source] std::io::Error),
 
+    /// No response from the device at the configured address/port
+    ///
+    /// Raised when a device/transport connection was opened successfully, but the device itself
+    /// did not respond (e.g. an I2C bus with no device present at the configured slave address).
+    /// This is distinct from [`CommunicationError::FileError`]: the OS-reported error (which can
+    /// vary by platform/driver, e.g. "No such device or address", "Remote I/O error", or even a
+    /// permission-sounding message on some I2C drivers) does **not** indicate an access/permission
+    /// problem here, since the underlying file/handle was already opened successfully.
+    #[error(
+        "no response from the device at the configured address, check that a device is present and the address is correct ({0})"
+    )]
+    NoResponse(#[source] std::io::Error),
+
     /// Target device sent a NACK (negative acknowledgment)
     #[error("board sent NACK")]
     NACKSent,
